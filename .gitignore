@@ -1,0 +1,21 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Large model files (6.8GB)
+models/
+
+# Model checkpoints and weights
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.ckpt
+*.npz

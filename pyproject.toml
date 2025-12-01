@@ -1,0 +1,35 @@
+[project]
+name = "prompt-interp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "torch==2.8.0",
+    "transformers>=4.57.1",
+    "datasets>=2.14.0",
+    "accelerate>=0.24.0",
+    "sentencepiece>=0.1.99",
+    "protobuf>=3.20.0",
+    "matplotlib>=3.10.7",
+    "peft>=0.18.0",
+    "custom-dreamy",
+    "llada",
+    "pydantic>=2.12.4",
+    "openai>=2.8.0",
+    "wandb>=0.23.0",
+    "einops>=0.8.1",
+    "jaxtyping>=0.3.3",
+    "plotly>=6.4.0",
+    "sonar-space>=0.5.0",
+    "fairseq2>=0.5.2",
+    "scipy>=1.15.3",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.7,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+custom-dreamy = { path = "../context-bench/external/custom_dreamy", editable = true }
+llada = { path = "../context-bench/external/llada", editable = true }

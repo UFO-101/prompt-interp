@@ -11,7 +11,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from pathlib import Path
 import json
 from typing import List, Tuple, Dict
-from .epo import EPOConfig, run_epo, PopulationMember
+from prompt_interp.epo import EPOConfig, run_epo, PopulationMember
 
 
 def create_test_sequences() -> List[Tuple[str, int]]:
@@ -387,7 +387,7 @@ def main():
 
     # We need to modify the EPO code to use our custom feature function
     # For now, let's use a simpler approach and import directly
-    from .epo import (
+    from prompt_interp.epo import (
         create_lambda_grid,
         initialize_population,
         get_token_gradients,

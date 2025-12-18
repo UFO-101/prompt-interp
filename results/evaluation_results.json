@@ -1,0 +1,1214 @@
+[
+  {
+    "task": "antonyms",
+    "seed": "Opposites: hot -> cold, big -> small. Now:",
+    "seed_decoded": "Opposites: hot -> cold, big -> small. Now:",
+    "seed_train_acc": 0.3,
+    "seed_test_acc": 0.1,
+    "best_train_acc": 0.3,
+    "best_prompt": "Opposites: hot -> cold, big -> small. Now:",
+    "best_step": 0,
+    "final_train_acc": 0.3,
+    "final_test_acc": 0.1,
+    "train_results": [
+      {
+        "input": "hot -> ",
+        "target": "cold",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "big -> ",
+        "target": "small",
+        "prediction": "small.",
+        "correct": true
+      },
+      {
+        "input": "fast -> ",
+        "target": "slow",
+        "prediction": "slow, slow, slow",
+        "correct": true
+      },
+      {
+        "input": "up -> ",
+        "target": "down",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "happy -> ",
+        "target": "sad",
+        "prediction": "bad -> bad -> bad",
+        "correct": false
+      },
+      {
+        "input": "light -> ",
+        "target": "dark",
+        "prediction": "dark.",
+        "correct": true
+      },
+      {
+        "input": "good -> ",
+        "target": "bad",
+        "prediction": "bad -> bad -> bad",
+        "correct": true
+      },
+      {
+        "input": "old -> ",
+        "target": "young",
+        "prediction": "old -> small -> small",
+        "correct": false
+      },
+      {
+        "input": "high -> ",
+        "target": "low",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "long -> ",
+        "target": "short",
+        "prediction": "short -> short -> short",
+        "correct": true
+      },
+      {
+        "input": "hard -> ",
+        "target": "soft",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "open -> ",
+        "target": "closed",
+        "prediction": "dark.",
+        "correct": false
+      },
+      {
+        "input": "tall -> ",
+        "target": "short",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "new -> ",
+        "target": "old",
+        "prediction": "bad -> bad -> bad",
+        "correct": false
+      },
+      {
+        "input": "right -> ",
+        "target": "wrong",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "true -> ",
+        "target": "false",
+        "prediction": "bad -> bad -> bad",
+        "correct": false
+      },
+      {
+        "input": "alive -> ",
+        "target": "dead",
+        "prediction": "dead.",
+        "correct": true
+      },
+      {
+        "input": "black -> ",
+        "target": "white",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "day -> ",
+        "target": "night",
+        "prediction": "night.",
+        "correct": true
+      },
+      {
+        "input": "start -> ",
+        "target": "stop",
+        "prediction": "cold.",
+        "correct": false
+      },
+      {
+        "input": "win -> ",
+        "target": "lose",
+        "prediction": "lose -> lose -> lose",
+        "correct": true
+      },
+      {
+        "input": "push -> ",
+        "target": "pull",
+        "prediction": "high.",
+        "correct": false
+      },
+      {
+        "input": "buy -> ",
+        "target": "sell",
+        "prediction": "cheap -> cheap -> cheap",
+        "correct": false
+      },
+      {
+        "input": "love -> ",
+        "target": "hate",
+        "prediction": "hate.",
+        "correct": true
+      },
+      {
+        "input": "sweet -> ",
+        "target": "sour",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "smooth -> ",
+        "target": "rough",
+        "prediction": "lightweight.",
+        "correct": false
+      },
+      {
+        "input": "sharp -> ",
+        "target": "dull",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "tight -> ",
+        "target": "loose",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "bright -> ",
+        "target": "dim",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "brave -> ",
+        "target": "coward",
+        "prediction": "strong -> strong -> strong",
+        "correct": false
+      }
+    ],
+    "test_results": [
+      {
+        "input": "wet -> ",
+        "target": "dry",
+        "prediction": "dark.",
+        "correct": false
+      },
+      {
+        "input": "loud -> ",
+        "target": "quiet",
+        "prediction": "loud -> loud -> loud",
+        "correct": false
+      },
+      {
+        "input": "rich -> ",
+        "target": "poor",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "full -> ",
+        "target": "empty",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "strong -> ",
+        "target": "weak",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "thick -> ",
+        "target": "thin",
+        "prediction": "thin.",
+        "correct": true
+      },
+      {
+        "input": "early -> ",
+        "target": "late",
+        "prediction": "early -> late -> late",
+        "correct": false
+      },
+      {
+        "input": "clean -> ",
+        "target": "dirty",
+        "prediction": "clean.",
+        "correct": false
+      },
+      {
+        "input": "deep -> ",
+        "target": "shallow",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "wide -> ",
+        "target": "narrow",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "heavy -> ",
+        "target": "light",
+        "prediction": "lightweight -> lightweight",
+        "correct": true
+      },
+      {
+        "input": "safe -> ",
+        "target": "dangerous",
+        "prediction": "safe -> safe -> safe",
+        "correct": false
+      },
+      {
+        "input": "inside -> ",
+        "target": "outside",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "front -> ",
+        "target": "back",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "top -> ",
+        "target": "bottom",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "first -> ",
+        "target": "last",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "near -> ",
+        "target": "far",
+        "prediction": "small.",
+        "correct": false
+      },
+      {
+        "input": "cheap -> ",
+        "target": "expensive",
+        "prediction": "cheap -> cheap -> cheap",
+        "correct": false
+      },
+      {
+        "input": "easy -> ",
+        "target": "hard",
+        "prediction": "easy -> easy -> easy",
+        "correct": false
+      },
+      {
+        "input": "warm -> ",
+        "target": "cool",
+        "prediction": "small.",
+        "correct": false
+      }
+    ],
+    "config": {
+      "lr": 0.001,
+      "ppl_weight": 0.1,
+      "max_steps": 100
+    }
+  },
+  {
+    "task": "plurals",
+    "seed": "Plurals: cat -> cats, child -> children. Now:",
+    "seed_decoded": "Plurals: cat -> cats, child -> children. Now:",
+    "seed_train_acc": 0.1,
+    "seed_test_acc": 0.0,
+    "best_train_acc": 0.1,
+    "best_prompt": "Plurals: cat -> cats, child -> children. Now:",
+    "best_step": 0,
+    "final_train_acc": 0.1,
+    "final_test_acc": 0.0,
+    "train_results": [
+      {
+        "input": "cat -> ",
+        "target": "cats",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "dog -> ",
+        "target": "dogs",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "car -> ",
+        "target": "cars",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "book -> ",
+        "target": "books",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "tree -> ",
+        "target": "trees",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "house -> ",
+        "target": "houses",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "table -> ",
+        "target": "tables",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "chair -> ",
+        "target": "chairs",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "bird -> ",
+        "target": "birds",
+        "prediction": "birds.",
+        "correct": true
+      },
+      {
+        "input": "flower -> ",
+        "target": "flowers",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "child -> ",
+        "target": "children",
+        "prediction": "children.",
+        "correct": true
+      },
+      {
+        "input": "mouse -> ",
+        "target": "mice",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "foot -> ",
+        "target": "feet",
+        "prediction": "child.",
+        "correct": false
+      },
+      {
+        "input": "tooth -> ",
+        "target": "teeth",
+        "prediction": "teeth.",
+        "correct": true
+      },
+      {
+        "input": "man -> ",
+        "target": "men",
+        "prediction": "woman.",
+        "correct": false
+      },
+      {
+        "input": "woman -> ",
+        "target": "women",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "goose -> ",
+        "target": "geese",
+        "prediction": "cats.",
+        "correct": false
+      },
+      {
+        "input": "person -> ",
+        "target": "people",
+        "prediction": "child.",
+        "correct": false
+      },
+      {
+        "input": "leaf -> ",
+        "target": "leaves",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "knife -> ",
+        "target": "knives",
+        "prediction": "knife.",
+        "correct": false
+      },
+      {
+        "input": "wolf -> ",
+        "target": "wolves",
+        "prediction": "cats.",
+        "correct": false
+      },
+      {
+        "input": "life -> ",
+        "target": "lives",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "wife -> ",
+        "target": "wives",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "city -> ",
+        "target": "cities",
+        "prediction": "school -> school -> school",
+        "correct": false
+      },
+      {
+        "input": "baby -> ",
+        "target": "babies",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "party -> ",
+        "target": "parties",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "story -> ",
+        "target": "stories",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "country -> ",
+        "target": "countries",
+        "prediction": "school -> school -> school",
+        "correct": false
+      },
+      {
+        "input": "box -> ",
+        "target": "boxes",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "bus -> ",
+        "target": "buses",
+        "prediction": "children.",
+        "correct": false
+      }
+    ],
+    "test_results": [
+      {
+        "input": "apple -> ",
+        "target": "apples",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "river -> ",
+        "target": "rivers",
+        "prediction": "river, river, river",
+        "correct": false
+      },
+      {
+        "input": "window -> ",
+        "target": "windows",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "friend -> ",
+        "target": "friends",
+        "prediction": "family -> family -> family",
+        "correct": false
+      },
+      {
+        "input": "ox -> ",
+        "target": "oxen",
+        "prediction": "cats, children ->",
+        "correct": false
+      },
+      {
+        "input": "louse -> ",
+        "target": "lice",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "fish -> ",
+        "target": "fish",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "sheep -> ",
+        "target": "sheep",
+        "prediction": "cattle, children ->",
+        "correct": false
+      },
+      {
+        "input": "deer -> ",
+        "target": "deer",
+        "prediction": "cats.",
+        "correct": false
+      },
+      {
+        "input": "moose -> ",
+        "target": "moose",
+        "prediction": "cats.",
+        "correct": false
+      },
+      {
+        "input": "calf -> ",
+        "target": "calves",
+        "prediction": "cattle, cattle",
+        "correct": false
+      },
+      {
+        "input": "half -> ",
+        "target": "halves",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "shelf -> ",
+        "target": "shelves",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "family -> ",
+        "target": "families",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "battery -> ",
+        "target": "batteries",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "church -> ",
+        "target": "churches",
+        "prediction": "church -> church.",
+        "correct": false
+      },
+      {
+        "input": "dish -> ",
+        "target": "dishes",
+        "prediction": "children.",
+        "correct": false
+      },
+      {
+        "input": "hero -> ",
+        "target": "heroes",
+        "prediction": "heroine -> heroine",
+        "correct": false
+      },
+      {
+        "input": "potato -> ",
+        "target": "potatoes",
+        "prediction": "chicken -> chicken",
+        "correct": false
+      },
+      {
+        "input": "tomato -> ",
+        "target": "tomatoes",
+        "prediction": "chickens.",
+        "correct": false
+      }
+    ],
+    "config": {
+      "lr": 0.001,
+      "ppl_weight": 0.1,
+      "max_steps": 100
+    }
+  },
+  {
+    "task": "past_tense",
+    "seed": "Past tense: walk -> walked, go -> went. Now:",
+    "seed_decoded": "Past tense: walk -> walked -> went -> went. Now:",
+    "seed_train_acc": 0.1,
+    "seed_test_acc": 0.15,
+    "best_train_acc": 0.4666666666666667,
+    "best_prompt": "Past tense: walked -> walked, went -> went.",
+    "best_step": 1,
+    "final_train_acc": 0.4666666666666667,
+    "final_test_acc": 0.4,
+    "train_results": [
+      {
+        "input": "walk -> ",
+        "target": "walked",
+        "prediction": "walked, walked",
+        "correct": true
+      },
+      {
+        "input": "talk -> ",
+        "target": "talked",
+        "prediction": "walked, walked",
+        "correct": false
+      },
+      {
+        "input": "play -> ",
+        "target": "played",
+        "prediction": "walked, walked",
+        "correct": false
+      },
+      {
+        "input": "work -> ",
+        "target": "worked",
+        "prediction": "went. work -> went",
+        "correct": false
+      },
+      {
+        "input": "watch -> ",
+        "target": "watched",
+        "prediction": "watched.",
+        "correct": true
+      },
+      {
+        "input": "call -> ",
+        "target": "called",
+        "prediction": "called.",
+        "correct": true
+      },
+      {
+        "input": "ask -> ",
+        "target": "asked",
+        "prediction": "asked for help.",
+        "correct": true
+      },
+      {
+        "input": "help -> ",
+        "target": "helped",
+        "prediction": "helped -> helped -> helped",
+        "correct": true
+      },
+      {
+        "input": "start -> ",
+        "target": "started",
+        "prediction": "walked, walked",
+        "correct": false
+      },
+      {
+        "input": "finish -> ",
+        "target": "finished",
+        "prediction": "walked, walked",
+        "correct": false
+      },
+      {
+        "input": "go -> ",
+        "target": "went",
+        "prediction": "walked, walked",
+        "correct": false
+      },
+      {
+        "input": "run -> ",
+        "target": "ran",
+        "prediction": "walked, walked",
+        "correct": false
+      },
+      {
+        "input": "eat -> ",
+        "target": "ate",
+        "prediction": "ate -> ate -> ate",
+        "correct": true
+      },
+      {
+        "input": "see -> ",
+        "target": "saw",
+        "prediction": "walked, walked",
+        "correct": false
+      },
+      {
+        "input": "take -> ",
+        "target": "took",
+        "prediction": "took -> took -> took",
+        "correct": true
+      },
+      {
+        "input": "make -> ",
+        "target": "made",
+        "prediction": "walk, walked,",
+        "correct": false
+      },
+      {
+        "input": "come -> ",
+        "target": "came",
+        "prediction": "came -> came -> came",
+        "correct": true
+      },
+      {
+        "input": "give -> ",
+        "target": "gave",
+        "prediction": "give -> give -> give",
+        "correct": false
+      },
+      {
+        "input": "think -> ",
+        "target": "thought",
+        "prediction": "thought.",
+        "correct": true
+      },
+      {
+        "input": "say -> ",
+        "target": "said",
+        "prediction": "walked, walked",
+        "correct": false
+      },
+      {
+        "input": "get -> ",
+        "target": "got",
+        "prediction": "got -> got -> got",
+        "correct": true
+      },
+      {
+        "input": "know -> ",
+        "target": "knew",
+        "prediction": "knew -> knew -> knew",
+        "correct": true
+      },
+      {
+        "input": "find -> ",
+        "target": "found",
+        "prediction": "found -> found -> found",
+        "correct": true
+      },
+      {
+        "input": "tell -> ",
+        "target": "told",
+        "prediction": "tell -> tell -> tell",
+        "correct": false
+      },
+      {
+        "input": "become -> ",
+        "target": "became",
+        "prediction": "walked, walked",
+        "correct": false
+      },
+      {
+        "input": "leave -> ",
+        "target": "left",
+        "prediction": "left.",
+        "correct": true
+      },
+      {
+        "input": "feel -> ",
+        "target": "felt",
+        "prediction": "feel -> feel -> feel",
+        "correct": false
+      },
+      {
+        "input": "put -> ",
+        "target": "put",
+        "prediction": "walked, walked",
+        "correct": false
+      },
+      {
+        "input": "bring -> ",
+        "target": "brought",
+        "prediction": "brought. bring. bring",
+        "correct": true
+      },
+      {
+        "input": "begin -> ",
+        "target": "began",
+        "prediction": "walked, walked",
+        "correct": false
+      }
+    ],
+    "test_results": [
+      {
+        "input": "jump -> ",
+        "target": "jumped",
+        "prediction": "jumped. jumped",
+        "correct": true
+      },
+      {
+        "input": "look -> ",
+        "target": "looked",
+        "prediction": "walked, walked",
+        "correct": false
+      },
+      {
+        "input": "open -> ",
+        "target": "opened",
+        "prediction": "walked.",
+        "correct": false
+      },
+      {
+        "input": "close -> ",
+        "target": "closed",
+        "prediction": "walked, walked",
+        "correct": false
+      },
+      {
+        "input": "want -> ",
+        "target": "wanted",
+        "prediction": "want to get to know",
+        "correct": false
+      },
+      {
+        "input": "buy -> ",
+        "target": "bought",
+        "prediction": "went.",
+        "correct": false
+      },
+      {
+        "input": "catch -> ",
+        "target": "caught",
+        "prediction": "walked, walked",
+        "correct": false
+      },
+      {
+        "input": "teach -> ",
+        "target": "taught",
+        "prediction": "taught -> taught -> taught",
+        "correct": true
+      },
+      {
+        "input": "fight -> ",
+        "target": "fought",
+        "prediction": "fought.",
+        "correct": true
+      },
+      {
+        "input": "seek -> ",
+        "target": "sought",
+        "prediction": "seek. seek.",
+        "correct": false
+      },
+      {
+        "input": "sleep -> ",
+        "target": "slept",
+        "prediction": "sleep.",
+        "correct": false
+      },
+      {
+        "input": "keep -> ",
+        "target": "kept",
+        "prediction": "walked.",
+        "correct": false
+      },
+      {
+        "input": "meet -> ",
+        "target": "met",
+        "prediction": "met.",
+        "correct": true
+      },
+      {
+        "input": "send -> ",
+        "target": "sent",
+        "prediction": "sent -> sent -> sent",
+        "correct": true
+      },
+      {
+        "input": "build -> ",
+        "target": "built",
+        "prediction": "built.",
+        "correct": true
+      },
+      {
+        "input": "spend -> ",
+        "target": "spent",
+        "prediction": "spent -> spent -> spent",
+        "correct": true
+      },
+      {
+        "input": "lose -> ",
+        "target": "lost",
+        "prediction": "lost.",
+        "correct": true
+      },
+      {
+        "input": "sit -> ",
+        "target": "sat",
+        "prediction": "walked, walked",
+        "correct": false
+      },
+      {
+        "input": "stand -> ",
+        "target": "stood",
+        "prediction": "walked, walked",
+        "correct": false
+      },
+      {
+        "input": "understand -> ",
+        "target": "understood",
+        "prediction": "walked, walked",
+        "correct": false
+      }
+    ],
+    "config": {
+      "lr": 0.001,
+      "ppl_weight": 0.1,
+      "max_steps": 100
+    }
+  },
+  {
+    "task": "next_letter",
+    "seed": "Next letter: A -> B, M -> N. Now:",
+    "seed_decoded": "Next letter: A -> B, M -> N. Now:",
+    "seed_train_acc": 0.08333333333333333,
+    "seed_test_acc": 0.14285714285714285,
+    "best_train_acc": 0.125,
+    "best_prompt": "Next letter: A -> B -> M -> N. Now, we have",
+    "best_step": 1,
+    "final_train_acc": 0.125,
+    "final_test_acc": 0.14285714285714285,
+    "train_results": [
+      {
+        "input": "A -> ",
+        "target": "B",
+        "prediction": "B -> C -> C",
+        "correct": true
+      },
+      {
+        "input": "B -> ",
+        "target": "C",
+        "prediction": "C -> N. The",
+        "correct": true
+      },
+      {
+        "input": "C -> ",
+        "target": "D",
+        "prediction": "N. The answer is",
+        "correct": false
+      },
+      {
+        "input": "D -> ",
+        "target": "E",
+        "prediction": "C -> N. The",
+        "correct": false
+      },
+      {
+        "input": "E -> ",
+        "target": "F",
+        "prediction": "C -> N. The",
+        "correct": false
+      },
+      {
+        "input": "F -> ",
+        "target": "G",
+        "prediction": "C -> N. The",
+        "correct": false
+      },
+      {
+        "input": "G -> ",
+        "target": "H",
+        "prediction": "C -> N. The",
+        "correct": false
+      },
+      {
+        "input": "H -> ",
+        "target": "I",
+        "prediction": "C -> N. The",
+        "correct": false
+      },
+      {
+        "input": "I -> ",
+        "target": "J",
+        "prediction": "C -> N. The",
+        "correct": false
+      },
+      {
+        "input": "J -> ",
+        "target": "K",
+        "prediction": "N. The answer is",
+        "correct": false
+      },
+      {
+        "input": "K -> ",
+        "target": "L",
+        "prediction": "N. The answer is",
+        "correct": false
+      },
+      {
+        "input": "L -> ",
+        "target": "M",
+        "prediction": "C. The word \"",
+        "correct": false
+      },
+      {
+        "input": "M -> ",
+        "target": "N",
+        "prediction": "N. The answer is",
+        "correct": true
+      },
+      {
+        "input": "N -> ",
+        "target": "O",
+        "prediction": "N, and we are",
+        "correct": false
+      },
+      {
+        "input": "O -> ",
+        "target": "P",
+        "prediction": "C -> N. The",
+        "correct": false
+      },
+      {
+        "input": "P -> ",
+        "target": "Q",
+        "prediction": "N. The answer is",
+        "correct": false
+      },
+      {
+        "input": "Q -> ",
+        "target": "R",
+        "prediction": "A -> B -> C",
+        "correct": false
+      },
+      {
+        "input": "R -> ",
+        "target": "S",
+        "prediction": "C -> N. The",
+        "correct": false
+      },
+      {
+        "input": "S -> ",
+        "target": "T",
+        "prediction": "N. The answer is",
+        "correct": false
+      },
+      {
+        "input": "T -> ",
+        "target": "U",
+        "prediction": "C. The word \"",
+        "correct": false
+      },
+      {
+        "input": "U -> ",
+        "target": "V",
+        "prediction": "C. The answer is",
+        "correct": false
+      },
+      {
+        "input": "V -> ",
+        "target": "W",
+        "prediction": "C -> N. The",
+        "correct": false
+      },
+      {
+        "input": "W -> ",
+        "target": "X",
+        "prediction": "C -> N. The",
+        "correct": false
+      },
+      {
+        "input": "X -> ",
+        "target": "Y",
+        "prediction": "N. The answer is",
+        "correct": false
+      }
+    ],
+    "test_results": [
+      {
+        "input": "a -> ",
+        "target": "b",
+        "prediction": "B -> C -> C",
+        "correct": true
+      },
+      {
+        "input": "c -> ",
+        "target": "d",
+        "prediction": "C -> N. The",
+        "correct": false
+      },
+      {
+        "input": "e -> ",
+        "target": "f",
+        "prediction": "C -> N. The",
+        "correct": false
+      },
+      {
+        "input": "g -> ",
+        "target": "h",
+        "prediction": "A -> B -> C",
+        "correct": false
+      },
+      {
+        "input": "i -> ",
+        "target": "j",
+        "prediction": "C -> N. The",
+        "correct": false
+      },
+      {
+        "input": "k -> ",
+        "target": "l",
+        "prediction": "A -> B -> N",
+        "correct": false
+      },
+      {
+        "input": "m -> ",
+        "target": "n",
+        "prediction": "N. The answer is",
+        "correct": true
+      },
+      {
+        "input": "o -> ",
+        "target": "p",
+        "prediction": "C -> N. The",
+        "correct": false
+      },
+      {
+        "input": "q -> ",
+        "target": "r",
+        "prediction": "A -> B -> C",
+        "correct": false
+      },
+      {
+        "input": "s -> ",
+        "target": "t",
+        "prediction": "A -> B -> N",
+        "correct": false
+      },
+      {
+        "input": "u -> ",
+        "target": "v",
+        "prediction": "C -> N. The",
+        "correct": false
+      },
+      {
+        "input": "w -> ",
+        "target": "x",
+        "prediction": "C -> N. The",
+        "correct": false
+      },
+      {
+        "input": "x -> ",
+        "target": "y",
+        "prediction": "C. The answer is",
+        "correct": false
+      },
+      {
+        "input": "y -> ",
+        "target": "z",
+        "prediction": "C -> N. The",
+        "correct": false
+      }
+    ],
+    "config": {
+      "lr": 0.001,
+      "ppl_weight": 0.1,
+      "max_steps": 100
+    }
+  }
+]

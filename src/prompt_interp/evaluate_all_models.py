@@ -2,7 +2,7 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from pathlib import Path
-from .train_soft_prompt import SoftPromptModel
+from prompt_interp.train_soft_prompt import SoftPromptModel
 from peft import PeftModel
 
 

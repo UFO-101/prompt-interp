@@ -1,0 +1,132 @@
+{
+  "embedding_stats": {
+    "target_norm": 0.20331324636936188,
+    "norm_min": 0.1743173748254776,
+    "norm_max": 0.24985504150390625,
+    "per_dim_mean_range": [
+      -0.012548190541565418,
+      0.04558283090591431
+    ],
+    "per_dim_std_range": [
+      1.777364559529815e-05,
+      0.014418341219425201
+    ],
+    "global_std": 0.006386850494891405
+  },
+  "auto_encoding": [
+    {
+      "original": "The quick brown fox jumps over the lazy dog.",
+      "decoded": "The quick brown fox jumps over the lazy dog."
+    },
+    {
+      "original": "Hello, how are you today?",
+      "decoded": "Hello, how are you today?"
+    },
+    {
+      "original": "Machine learning is transforming the world.",
+      "decoded": "Machine learning is transforming the world."
+    },
+    {
+      "original": "I went to the store to buy some groceries.",
+      "decoded": "I went to the store to buy some groceries."
+    },
+    {
+      "original": "The capital of France is Paris.",
+      "decoded": "The capital of France is Paris."
+    }
+  ],
+  "strategy_2_norm_scaled": [
+    "\"After all, it's hard to tell who's going to pay for it, but we're going to pay for it\", said Mr. O'Brien, a Republican.",
+    "In the case of a two-way call, it's said that \"there's no such thing as a two-way street\" and \"there's no such thing as a two-way street\".",
+    "\"Right from the start, people in the world are not allowed to participate in the events of the Day of Atonement, but they are allowed to participate in the events of the Day of Atonement, the Day of Atonement, the Day of Atonement.",
+    "Moreover, about the granddaughter of the deceased, and the granddaughter of the deceased, and the granddaughter of the deceased.",
+    "This is the only place where you can get to know each other, and the only place where you can get to know each other is by visiting the museum.",
+    "In St. John's, the one with the fear, the Lord, at the time of the owner's departure had mailed it, we arrived in Poland and enjoyed the view.",
+    "By the way, it's worth mentioning that the book of Genesis is about God's covenant with Abraham and his descendants.",
+    "Furthermore, it would be worthwhile to add the following: \"We believe in the power of the Holy Spirit and in the power of the Holy Spirit to bring salvation to the poor and the needy.",
+    "It seems that the \"big four\" of the United States and the rest of the world can't keep up with the pandemic.",
+    "This was the first time in the history of the competition that the winner of the competition was chosen to be the winner of the competition.",
+    "To tell the truth, there is a lot of confusion in the media about what is happening and what is going on.",
+    "\"There's a conversation going on at the beginning of the season, and I'm sure it's going to be a good one\".",
+    "The films, by the way, are a lot of fun to play, but I think it's a lot of fun to play.",
+    "In the meantime, the Prime Minister said, \"In the meantime, the Prime Minister, the Prime Minister, the Prime Minister, the Prime Minister, the Prime Minister, the Prime Minister, the Prime Minister, the Prime Minister, the Prime Minister, the Prime Minister, the Prime Minister, the Prime Minister, the Prime Minister, the Prime Minister, the Prime Minister, the Prime Minister, the Prime Minister, the Prime Minister, the Prime Minister, the Prime Minister",
+    "It's time for the Hindu Buddha to be secure the busiest and the most ambitious with traveling at mount-on-mount, and the most active.",
+    "and of the is not \"Official\" and \"Official\" is \"Official\" and \"Official\" is \"Official\" and \"Official\" is \"Official\" and \"Official\" is \"Official\".",
+    "See also the list of places where you can see the full range of the artwork, as well as the number of places where you can see the full range of the artwork.",
+    "The work of our brothers and sisters in Christ's name is being carried out in the name of Christ.",
+    "God's Word says, \"God will bless you and bless you and bless you\". \"God bless you and bless you and bless you\".",
+    "The words of the President of the Republic of Uzbekistan: \"The words of the President of the Republic of Uzbekistan of the Republic of Uzbekistan of the Republic of Uzbekistan of the Republic of Uzbekistan of the Republic of Uzbekistan of the Republic of Uzbekistan of the Republic of Uzbekistan of the Republic of Uzbekistan of the Republic of Uzbekistan of the Republic of Uzbekistan of the Republic of Uzbekistan of the Republic of Uzbekistan of the Republic of Kazakhstan of the",
+    "The, museum of helmets, I believe, is unique in the sense that it is unique in the sense that it is unique in the sense that it is unique in the sense that it is unique in the sense that it is unique in the sense that it is unique in the sense that it is unique.",
+    "It's time to get back to work, and it's time to get to work, and it's time to get to work, and it's time to get to work, and it's time to get to work.",
+    "For total appreciation of the world, not only in the world but in the world, and in the life of the world.",
+    "The truth is, children do not revaluate the body, it was taken as a free thought and not be held accountable by many, with the body as the highest in the Association.",
+    "Freedom of religion is the most important thing in the life of a person, and it is the freedom of religion that is the most important thing in the life of a person.",
+    "I have a place to look for the message and I can see the message and I can see the message and I can see the message.",
+    "It agrees with the ageing code that also adds science to the game, more than it does in the public domain, and that its first steps on the side of the IRS have been made in this case.",
+    "On the other hand, after the war, the doctor went on to say, \"I'm going to do my best to help you\".",
+    "The Bible is a great source of inspiration for us, and it is a source of inspiration for many of us.",
+    "The next step is to kill the person, and the next step is to kill the person, and the next step is to kill the person, and the next step is to kill the person."
+  ],
+  "strategy_3_per_dim_matched": [
+    "The early battled the story to make the ugly.",
+    "The window to office? I'm going to tell you",
+    "The beach Laboratoryhun you want to the element of some pastories in German.",
+    "New York City: New York City: New York City: New York City: New York City: New York City: New York City: New York City: New York City: New York City: New York City: New York City: New York City: New York City: New York City is a place where you can see things that are not there.",
+    "Courageous flyer unhappy talk!",
+    "The neuron to fly the outside of us.",
+    "Triplets? Triplets? Triplets? Triplets?",
+    "You know, I don't think I can do it.",
+    "The sunshine travels in mexico.",
+    "The Queen wants to see the sunset and the sunrise.",
+    "It opened the door. Open the door.",
+    "The man walked out of the room.",
+    "The blue is the color of the moon.",
+    "Master explorers will teach us the transition.",
+    "I'm sorry, but I'm sorry. I'm sorry. I'm sorry. I'm sorry. I'm sorry. I'm sorry. I'm sorry. I'm sorry. I'm sorry. I'm sorry. I'm sorry. You know what you mean?",
+    "Marine love women. Marine love women. Marine love women.",
+    "You know, I've been thinking about it for a long time.",
+    "The war is over. The war is over.",
+    "I know. I know. I know.",
+    "The toilet bowl blue began to be drawing about the airs my best penny.",
+    "The wisdom lamp, try to change the color of the color of the water.",
+    "I can't believe I'm going to die.",
+    "Patricia the wolf helps me I think I know the answer.",
+    "The wisdom is developing. The wisdom is developing.",
+    "The morning philosophy is changing. It's changing.",
+    "The psyche looked at me and asked me to do it.",
+    "The prophet asked me to explain to you the meaning of the dream.",
+    "The white spirit looks out for the evening.",
+    "The Doctor: The Doctor: The Doctor: The Doctor:",
+    "The woman said: \"I can't believe it."
+  ],
+  "norm_scale_effect": [
+    {
+      "norm": 0.1,
+      "text": "It's the kind of thing that's going to happen, and the kind of thing that's going to happen, and the kind of thing that's going to happen\"."
+    },
+    {
+      "norm": 0.15,
+      "text": "\"That's the kind of person who, with the help of a lot of money, is able to get the most out of it\", he said."
+    },
+    {
+      "norm": 0.2,
+      "text": "\"That's the job of one of the owners, he said, and the job of the other, he said, is to make the most of it\"."
+    },
+    {
+      "norm": 0.25,
+      "text": "\"That's the job of one of them, who's also known as Bobbo, is to find out more about the artists, the artists, the artists, and the artists\"."
+    },
+    {
+      "norm": 0.3,
+      "text": "\"That's the job of one of the owners, who is trying to get rid of the other, is to try to get rid of the new owner, who is trying to get rid of the old owner\", he said."
+    },
+    {
+      "norm": 0.4,
+      "text": "\"He's one of those people who, with the help of a lot of people who don't know him, they're looking for the next generation of players, and they're looking for the next generation of players\", he said."
+    },
+    {
+      "norm": 0.5,
+      "text": "\"He's the one who, with the help of a lot of other people, is trying to get to know more about the next president, Mr. Putin\", he said."
+    }
+  ]
+}

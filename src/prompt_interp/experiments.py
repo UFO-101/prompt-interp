@@ -1,9 +1,10 @@
+#%%
 """Experiments for finding embeddings that elicit specific next-sentence predictions."""
 
 import torch
 import torch.nn.functional as F
 
-from prompt_interp.sonar import SonarWrapper
+from prompt_interp.sonar_wrapper import SonarWrapper
 from prompt_interp.generator import SonarLLMGenerator
 from prompt_interp.optimize import (
     project_to_norm,
@@ -14,51 +15,72 @@ from prompt_interp.optimize import (
 )
 
 
+def add_noise_with_projection(z: torch.Tensor, noise_level: float) -> torch.Tensor:
+    """Add Gaussian noise scaled by norm, then project back to original norm."""
+    orig_norm = z.norm(dim=-1, keepdim=True)
+    noise = torch.randn_like(z) * noise_level * orig_norm
+    z_noisy = z + noise
+    return z_noisy * (orig_norm / (z_noisy.norm(dim=-1, keepdim=True) + 1e-8))
+
+
 def run_next_sentence_experiment(
     init_text: str,
     target_text: str,
-    sonar: SonarWrapper,
+    sonar_wrapper: SonarWrapper,
     generator: SonarLLMGenerator,
     n_steps: int = 100,
     lr: float = 0.01,
     log_every: int = 10,
     verbose: bool = True,
+    n_noise_samples: int = 7,
+    noise_level: float = 0.03,
 ) -> dict:
     """
     Find z such that SONAR-LLM(z) decodes to target_text.
 
     Optimizes z using decoder cross-entropy loss so that the model's
     predicted next-sentence embedding decodes to the target sentence.
+    Uses gradient averaging over noised copies of z for robustness.
     """
-    # Encode init and target
-    init_emb = sonar.encode([init_text]).squeeze(0)
-    target_emb = sonar.encode([target_text]).squeeze(0)
-    target_tokens = tokenize_for_decoder(target_text, sonar)
-    target_norm = init_emb.norm().item()
+    # Encode init and target: (1, 1, 1024) for (batch, seq, embed_dim)
+    init_emb = sonar_wrapper.encode([init_text]).unsqueeze(1)  # (1, 1, 1024)
+    target_emb = sonar_wrapper.encode([target_text]).unsqueeze(1)  # (1, 1, 1024)
+    target_tokens = tokenize_for_decoder(target_text, sonar_wrapper).unsqueeze(0)  # (1, seq_len)
+    target_norm = init_emb.norm(dim=-1).mean().item()
 
     # Optimization
-    z = init_emb.clone().requires_grad_(True)
+    z = init_emb.clone().requires_grad_(True)  # (1, 1, 1024)
     optimizer = torch.optim.Adam([z], lr=lr)
     trajectory = []
+    batch_size = 1 + n_noise_samples
+    target_tokens_batch = target_tokens.expand(batch_size, -1)  # (8, seq_len)
 
     for step in range(n_steps):
         optimizer.zero_grad()
         z_proj = project_to_norm(z, target_norm)
 
-        # Forward: z -> SONAR-LLM -> pred_emb
-        pred_emb = predict_next_embedding(z_proj, generator)
+        # Create batch: original + n_noise_samples noised copies
+        z_expanded = z_proj.expand(n_noise_samples, -1, -1)  # (7, 1, 1024)
+        z_noisy = add_noise_with_projection(z_expanded, noise_level)
+        z_batch = torch.cat([z_proj, z_noisy], dim=0)  # (8, 1, 1024)
 
-        # Decoder CE loss on pred_emb
-        loss = decoder_ce_loss(pred_emb, target_tokens, sonar)
-        cos_sim = F.cosine_similarity(pred_emb.unsqueeze(0), target_emb.unsqueeze(0)).item()
+        # Forward: z_batch -> SONAR-LLM -> pred_emb_batch
+        pred_emb_batch = predict_next_embedding(z_batch, generator)  # (8, 1, 1024)
+
+        # Decoder CE loss averaged over batch
+        loss = decoder_ce_loss(pred_emb_batch, target_tokens_batch, sonar_wrapper)
+
+        # Cosine similarity for logging (use original z, not noised)
+        pred_emb = pred_emb_batch[0:1]  # (1, 1, 1024)
+        cos_sim = F.cosine_similarity(pred_emb.view(-1), target_emb.view(-1), dim=0).item()
 
         loss.backward()
         optimizer.step()
 
         if step % log_every == 0 or step == n_steps - 1:
             with torch.no_grad():
-                decoded_z = sonar.decode(project_to_norm(z, target_norm).unsqueeze(0))[0]
-                decoded_pred = sonar.decode(pred_emb.unsqueeze(0))[0]
+                decoded_z = sonar_wrapper.decode(project_to_norm(z, target_norm).squeeze(1))[0]
+                decoded_pred = sonar_wrapper.decode(pred_emb.squeeze(1))[0]
 
             trajectory.append({
                 "step": step,
@@ -77,8 +99,8 @@ def run_next_sentence_experiment(
     with torch.no_grad():
         z_final = project_to_norm(z, target_norm)
         pred_final = predict_next_embedding(z_final, generator)
-        decoded_z_final = sonar.decode(z_final.unsqueeze(0))[0]
-        decoded_pred_final = sonar.decode(pred_final.unsqueeze(0))[0]
+        decoded_z_final = sonar_wrapper.decode(z_final.squeeze(1))[0]
+        decoded_pred_final = sonar_wrapper.decode(pred_final.squeeze(1))[0]
 
     return {
         "init_text": init_text,
@@ -91,11 +113,37 @@ def run_next_sentence_experiment(
         "success": decoded_pred_final.strip() == target_text.strip(),
     }
 
+#%%
+sonar_wrapper = SonarWrapper()
+for p in sonar_wrapper.decoder.model.parameters():
+    p.requires_grad = False
 
+generator = SonarLLMGenerator.from_pretrained("raxtemur/sonar-llm-900m")
+for p in generator.parameters():
+    p.requires_grad = False
+
+#%%
+run_next_sentence_experiment(
+    init_text="I like cheese.",
+    # target_text="Then she went to the shop to buy eggs",
+    target_text="She asked her mom if she could have a new toy.",
+    sonar_wrapper=sonar_wrapper,
+    generator=generator,
+    n_steps=20,
+    lr=0.01,
+    log_every=2,
+    n_noise_samples=63,
+    # noise_level=0.06,
+    noise_level=0.09,
+
+    verbose=True,
+)
+
+#%%
 def run_multi_init_experiments(
     target_sentences: list[str],
     init_sentences: list[str],
-    sonar: SonarWrapper,
+    sonar_wrapper: SonarWrapper,
     generator: SonarLLMGenerator,
     n_steps: int = 10,
     lr: float = 0.01,
@@ -112,7 +160,7 @@ def run_multi_init_experiments(
                 print("=" * 70)
 
             result = run_next_sentence_experiment(
-                init, target, sonar, generator, n_steps, lr, log_every=1, verbose=verbose
+                init, target, sonar_wrapper, generator, n_steps, lr, log_every=1, verbose=verbose
             )
             result.update({"target_idx": ti, "init_idx": ii})
             results.append(result)

@@ -4,11 +4,9 @@ import json
 import torch
 from datetime import datetime
 
-from prompt_interp import (
-    SonarWrapper,
-    SonarLLMGenerator,
-    run_multi_init_experiments,
-)
+from prompt_interp.sonar_wrapper import SonarWrapper
+from prompt_interp.generator import SonarLLMGenerator
+from prompt_interp.experiments import run_multi_init_experiments
 
 
 # Target sentences - plausible "second sentences" in a story
@@ -27,10 +25,10 @@ INIT_SENTENCES = [
 
 def main():
     print("Loading models...")
-    sonar = SonarWrapper()
+    sonar_wrapper = SonarWrapper()
 
     # Freeze SONAR decoder parameters
-    for p in sonar.decoder.model.parameters():
+    for p in sonar_wrapper.decoder.model.parameters():
         p.requires_grad = False
 
     generator = SonarLLMGenerator.from_pretrained("raxtemur/sonar-llm-900m")
@@ -45,7 +43,7 @@ def main():
     results = run_multi_init_experiments(
         target_sentences=TARGET_SENTENCES,
         init_sentences=INIT_SENTENCES,
-        sonar=sonar,
+        sonar_wrapper=sonar_wrapper,
         generator=generator,
         n_steps=10,
         lr=0.01,

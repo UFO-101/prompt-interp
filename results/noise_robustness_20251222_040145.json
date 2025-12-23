@@ -1,0 +1,802 @@
+[
+  {
+    "prompt": "Once upon a time, there was a little girl named Lily.",
+    "noise_level": 0.0,
+    "project": false,
+    "decoded": "Once upon a time, there was a little girl named Lily.",
+    "cosine_sim": 1.0,
+    "orig_norm": 0.19618724286556244,
+    "noisy_norm": 0.19618724286556244,
+    "exact_match": true
+  },
+  {
+    "prompt": "Once upon a time, there was a little girl named Lily.",
+    "noise_level": 0.0,
+    "project": true,
+    "decoded": "Once upon a time, there was a little girl named Lily.",
+    "cosine_sim": 1.0,
+    "orig_norm": 0.19618724286556244,
+    "noisy_norm": 0.19618722796440125,
+    "exact_match": true
+  },
+  {
+    "prompt": "Once upon a time, there was a little girl named Lily.",
+    "noise_level": 0.01,
+    "project": false,
+    "decoded": "Once upon a time, there was a little girl named Lily.",
+    "cosine_sim": 0.9548013210296631,
+    "orig_norm": 0.19618724286556244,
+    "noisy_norm": 0.20528669655323029,
+    "exact_match": true
+  },
+  {
+    "prompt": "Once upon a time, there was a little girl named Lily.",
+    "noise_level": 0.01,
+    "project": true,
+    "decoded": "Once upon a time, there was a little girl named Lily.",
+    "cosine_sim": 0.9503248333930969,
+    "orig_norm": 0.19618724286556244,
+    "noisy_norm": 0.19618722796440125,
+    "exact_match": true
+  },
+  {
+    "prompt": "Once upon a time, there was a little girl named Lily.",
+    "noise_level": 0.02,
+    "project": false,
+    "decoded": "Once upon a time, there was a girl named Lily.",
+    "cosine_sim": 0.8429285287857056,
+    "orig_norm": 0.19618724286556244,
+    "noisy_norm": 0.22981980443000793,
+    "exact_match": false
+  },
+  {
+    "prompt": "Once upon a time, there was a little girl named Lily.",
+    "noise_level": 0.02,
+    "project": true,
+    "decoded": "Once upon a time, there was a little girl named Lily.",
+    "cosine_sim": 0.8405524492263794,
+    "orig_norm": 0.19618724286556244,
+    "noisy_norm": 0.19618722796440125,
+    "exact_match": true
+  },
+  {
+    "prompt": "Once upon a time, there was a little girl named Lily.",
+    "noise_level": 0.05,
+    "project": false,
+    "decoded": "Once upon a time, there was a little girl named Lily.",
+    "cosine_sim": 0.5038894414901733,
+    "orig_norm": 0.19618724286556244,
+    "noisy_norm": 0.35998016595840454,
+    "exact_match": true
+  },
+  {
+    "prompt": "Once upon a time, there was a little girl named Lily.",
+    "noise_level": 0.05,
+    "project": true,
+    "decoded": "Once upon a time, there was a little girl named Lily.",
+    "cosine_sim": 0.5142453908920288,
+    "orig_norm": 0.19618724286556244,
+    "noisy_norm": 0.19618722796440125,
+    "exact_match": true
+  },
+  {
+    "prompt": "Once upon a time, there was a little girl named Lily.",
+    "noise_level": 0.1,
+    "project": false,
+    "decoded": "Once upon a time, there was a woman, who wanted to be a little girl, but she wanted to be a little girl.",
+    "cosine_sim": 0.2786146104335785,
+    "orig_norm": 0.19618724286556244,
+    "noisy_norm": 0.6606939435005188,
+    "exact_match": false
+  },
+  {
+    "prompt": "Once upon a time, there was a little girl named Lily.",
+    "noise_level": 0.1,
+    "project": true,
+    "decoded": "\"Once upon a time, there was a little girl, a little girl, a little girl, a little girl\".",
+    "cosine_sim": 0.32711172103881836,
+    "orig_norm": 0.19618724286556244,
+    "noisy_norm": 0.19618722796440125,
+    "exact_match": false
+  },
+  {
+    "prompt": "Once upon a time, there was a little girl named Lily.",
+    "noise_level": 0.2,
+    "project": false,
+    "decoded": "along along along along along along along along along along along along along along along along along along along along along along along along along along along along along along along along along along along along along along along along along along along along along along along along along",
+    "cosine_sim": 0.13366280496120453,
+    "orig_norm": 0.19618724286556244,
+    "noisy_norm": 1.3118735551834106,
+    "exact_match": false
+  },
+  {
+    "prompt": "Once upon a time, there was a little girl named Lily.",
+    "noise_level": 0.2,
+    "project": true,
+    "decoded": "A few years ago I had a dream that I would be able to get a job in the UK and I had a dream that I would be able to get a job in the UK and I would be able to get a job in the UK.",
+    "cosine_sim": 0.19981586933135986,
+    "orig_norm": 0.19618724286556244,
+    "noisy_norm": 0.19618724286556244,
+    "exact_match": false
+  },
+  {
+    "prompt": "Once upon a time, there was a little girl named Lily.",
+    "noise_level": 0.5,
+    "project": false,
+    "decoded": "[cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "cosine_sim": 0.07994697242975235,
+    "orig_norm": 0.19618724286556244,
+    "noisy_norm": 3.0630125999450684,
+    "exact_match": false
+  },
+  {
+    "prompt": "Once upon a time, there was a little girl named Lily.",
+    "noise_level": 0.5,
+    "project": true,
+    "decoded": "Solomon is the author of the book of Proverbs, and Solomon is the author of the book of Proverbs.",
+    "cosine_sim": 0.08187748491764069,
+    "orig_norm": 0.19618724286556244,
+    "noisy_norm": 0.19618725776672363,
+    "exact_match": false
+  },
+  {
+    "prompt": "Once upon a time, there was a little girl named Lily.",
+    "noise_level": 1.0,
+    "project": false,
+    "decoded": ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
+    "cosine_sim": 0.003502344712615013,
+    "orig_norm": 0.19618724286556244,
+    "noisy_norm": 6.164332866668701,
+    "exact_match": false
+  },
+  {
+    "prompt": "Once upon a time, there was a little girl named Lily.",
+    "noise_level": 1.0,
+    "project": true,
+    "decoded": "Compatibility: Compatibility can be measured by the fact that at least one of the three types of data is stored in the database, and that is why it is called a database.",
+    "cosine_sim": 0.03818477690219879,
+    "orig_norm": 0.19618724286556244,
+    "noisy_norm": 0.19618725776672363,
+    "exact_match": false
+  },
+  {
+    "prompt": "The weather is nice today.",
+    "noise_level": 0.0,
+    "project": false,
+    "decoded": "The weather is nice today.",
+    "cosine_sim": 0.9999999403953552,
+    "orig_norm": 0.21576228737831116,
+    "noisy_norm": 0.21576228737831116,
+    "exact_match": true
+  },
+  {
+    "prompt": "The weather is nice today.",
+    "noise_level": 0.0,
+    "project": true,
+    "decoded": "The weather is nice today.",
+    "cosine_sim": 1.0,
+    "orig_norm": 0.21576228737831116,
+    "noisy_norm": 0.21576225757598877,
+    "exact_match": true
+  },
+  {
+    "prompt": "The weather is nice today.",
+    "noise_level": 0.01,
+    "project": false,
+    "decoded": "The weather is nice today.",
+    "cosine_sim": 0.9485737085342407,
+    "orig_norm": 0.21576228737831116,
+    "noisy_norm": 0.22832106053829193,
+    "exact_match": true
+  },
+  {
+    "prompt": "The weather is nice today.",
+    "noise_level": 0.01,
+    "project": true,
+    "decoded": "The weather is nice today.",
+    "cosine_sim": 0.9520246982574463,
+    "orig_norm": 0.21576228737831116,
+    "noisy_norm": 0.21576228737831116,
+    "exact_match": true
+  },
+  {
+    "prompt": "The weather is nice today.",
+    "noise_level": 0.02,
+    "project": false,
+    "decoded": "It's nice weather today.",
+    "cosine_sim": 0.8430278301239014,
+    "orig_norm": 0.21576228737831116,
+    "noisy_norm": 0.2582618296146393,
+    "exact_match": false
+  },
+  {
+    "prompt": "The weather is nice today.",
+    "noise_level": 0.02,
+    "project": true,
+    "decoded": "The weather is nice today.",
+    "cosine_sim": 0.8278974294662476,
+    "orig_norm": 0.21576228737831116,
+    "noisy_norm": 0.21576228737831116,
+    "exact_match": true
+  },
+  {
+    "prompt": "The weather is nice today.",
+    "noise_level": 0.05,
+    "project": false,
+    "decoded": "Good weather today.",
+    "cosine_sim": 0.5669733285903931,
+    "orig_norm": 0.21576228737831116,
+    "noisy_norm": 0.4068330228328705,
+    "exact_match": false
+  },
+  {
+    "prompt": "The weather is nice today.",
+    "noise_level": 0.05,
+    "project": true,
+    "decoded": "The weather is nice today.",
+    "cosine_sim": 0.5354057550430298,
+    "orig_norm": 0.21576228737831116,
+    "noisy_norm": 0.21576228737831116,
+    "exact_match": true
+  },
+  {
+    "prompt": "The weather is nice today.",
+    "noise_level": 0.1,
+    "project": false,
+    "decoded": "YATILITY MARY MARY MARY MARY MARY MARY It is the weather",
+    "cosine_sim": 0.3189384639263153,
+    "orig_norm": 0.21576228737831116,
+    "noisy_norm": 0.7475841045379639,
+    "exact_match": false
+  },
+  {
+    "prompt": "The weather is nice today.",
+    "noise_level": 0.1,
+    "project": true,
+    "decoded": "The popularity of the park will be shown to me in the following way:",
+    "cosine_sim": 0.26626405119895935,
+    "orig_norm": 0.21576228737831116,
+    "noisy_norm": 0.21576228737831116,
+    "exact_match": false
+  },
+  {
+    "prompt": "The weather is nice today.",
+    "noise_level": 0.2,
+    "project": false,
+    "decoded": "All of that in this way about in that there's all of that there's all of that there's all of that there's all of that there's all of that there's all of that there's all of that there's about.",
+    "cosine_sim": 0.20665110647678375,
+    "orig_norm": 0.21576228737831116,
+    "noisy_norm": 1.376991629600525,
+    "exact_match": false
+  },
+  {
+    "prompt": "The weather is nice today.",
+    "noise_level": 0.2,
+    "project": true,
+    "decoded": "It's the first time I've ever seen a woman's heart beating, and it's the first time I've ever seen a woman's heart beating, and the first time I've ever seen a woman's heart beating.",
+    "cosine_sim": 0.12204033136367798,
+    "orig_norm": 0.21576228737831116,
+    "noisy_norm": 0.21576227247714996,
+    "exact_match": false
+  },
+  {
+    "prompt": "The weather is nice today.",
+    "noise_level": 0.5,
+    "project": false,
+    "decoded": "great great great great great great great great great great great great great great great great great''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''",
+    "cosine_sim": 0.06386777758598328,
+    "orig_norm": 0.21576228737831116,
+    "noisy_norm": 3.365574836730957,
+    "exact_match": false
+  },
+  {
+    "prompt": "The weather is nice today.",
+    "noise_level": 0.5,
+    "project": true,
+    "decoded": "Row of wait for The Roman explanation is the attention of the people, like the passing of the signs.",
+    "cosine_sim": 0.0764077752828598,
+    "orig_norm": 0.21576228737831116,
+    "noisy_norm": 0.21576227247714996,
+    "exact_match": false
+  },
+  {
+    "prompt": "The weather is nice today.",
+    "noise_level": 1.0,
+    "project": false,
+    "decoded": "Out Out Out Out Out Out Out Out",
+    "cosine_sim": 0.042955413460731506,
+    "orig_norm": 0.21576228737831116,
+    "noisy_norm": 6.853233814239502,
+    "exact_match": false
+  },
+  {
+    "prompt": "The weather is nice today.",
+    "noise_level": 1.0,
+    "project": true,
+    "decoded": "It's about the book, and it's about the book, and it's about the book, and it's about the book.",
+    "cosine_sim": -0.02522554062306881,
+    "orig_norm": 0.21576228737831116,
+    "noisy_norm": 0.21576228737831116,
+    "exact_match": false
+  },
+  {
+    "prompt": "I like cheese.",
+    "noise_level": 0.0,
+    "project": false,
+    "decoded": "I like cheese.",
+    "cosine_sim": 1.0,
+    "orig_norm": 0.2117408961057663,
+    "noisy_norm": 0.2117408961057663,
+    "exact_match": true
+  },
+  {
+    "prompt": "I like cheese.",
+    "noise_level": 0.0,
+    "project": true,
+    "decoded": "I like cheese.",
+    "cosine_sim": 0.9999999403953552,
+    "orig_norm": 0.2117408961057663,
+    "noisy_norm": 0.2117408961057663,
+    "exact_match": true
+  },
+  {
+    "prompt": "I like cheese.",
+    "noise_level": 0.01,
+    "project": false,
+    "decoded": "I like cheese.",
+    "cosine_sim": 0.9540215730667114,
+    "orig_norm": 0.2117408961057663,
+    "noisy_norm": 0.22201670706272125,
+    "exact_match": true
+  },
+  {
+    "prompt": "I like cheese.",
+    "noise_level": 0.01,
+    "project": true,
+    "decoded": "I like cheese.",
+    "cosine_sim": 0.9502069354057312,
+    "orig_norm": 0.2117408961057663,
+    "noisy_norm": 0.2117408812046051,
+    "exact_match": true
+  },
+  {
+    "prompt": "I like cheese.",
+    "noise_level": 0.02,
+    "project": false,
+    "decoded": "I like cheese.",
+    "cosine_sim": 0.8298187851905823,
+    "orig_norm": 0.2117408961057663,
+    "noisy_norm": 0.256671667098999,
+    "exact_match": true
+  },
+  {
+    "prompt": "I like cheese.",
+    "noise_level": 0.02,
+    "project": true,
+    "decoded": "I like cheese.",
+    "cosine_sim": 0.834547758102417,
+    "orig_norm": 0.2117408961057663,
+    "noisy_norm": 0.2117408961057663,
+    "exact_match": true
+  },
+  {
+    "prompt": "I like cheese.",
+    "noise_level": 0.05,
+    "project": false,
+    "decoded": "I like the cheese .",
+    "cosine_sim": 0.5344528555870056,
+    "orig_norm": 0.2117408961057663,
+    "noisy_norm": 0.41064146161079407,
+    "exact_match": false
+  },
+  {
+    "prompt": "I like cheese.",
+    "noise_level": 0.05,
+    "project": true,
+    "decoded": "I'm like, a little cheese and wheat. Cheese and rice.",
+    "cosine_sim": 0.5077049136161804,
+    "orig_norm": 0.2117408961057663,
+    "noisy_norm": 0.2117408812046051,
+    "exact_match": false
+  },
+  {
+    "prompt": "I like cheese.",
+    "noise_level": 0.1,
+    "project": false,
+    "decoded": "\"You know, I'm in the U.S.A\".",
+    "cosine_sim": 0.2876076102256775,
+    "orig_norm": 0.2117408961057663,
+    "noisy_norm": 0.7210097908973694,
+    "exact_match": false
+  },
+  {
+    "prompt": "I like cheese.",
+    "noise_level": 0.1,
+    "project": true,
+    "decoded": "I believe I know the answer. - I believe I know the answer. - I believe I believe it. - I believe it.",
+    "cosine_sim": 0.30677875876426697,
+    "orig_norm": 0.2117408961057663,
+    "noisy_norm": 0.2117408961057663,
+    "exact_match": false
+  },
+  {
+    "prompt": "I like cheese.",
+    "noise_level": 0.2,
+    "project": false,
+    "decoded": "if if if if if like like like and and and and and and and and and and and and and and and and and and and and and and and and and and and\".\"..............\"..................................\"......\"................\"........\"...................................................................\".",
+    "cosine_sim": 0.15950044989585876,
+    "orig_norm": 0.2117408961057663,
+    "noisy_norm": 1.3198821544647217,
+    "exact_match": false
+  },
+  {
+    "prompt": "I like cheese.",
+    "noise_level": 0.2,
+    "project": true,
+    "decoded": "He will try the greatest, and is more of a kasda friend from zippy is to be raised in his profile",
+    "cosine_sim": 0.14202991127967834,
+    "orig_norm": 0.2117408961057663,
+    "noisy_norm": 0.2117408961057663,
+    "exact_match": false
+  },
+  {
+    "prompt": "I like cheese.",
+    "noise_level": 0.5,
+    "project": false,
+    "decoded": "?? Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu????????? Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu Bu??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????",
+    "cosine_sim": 0.085333451628685,
+    "orig_norm": 0.2117408961057663,
+    "noisy_norm": 3.4243412017822266,
+    "exact_match": false
+  },
+  {
+    "prompt": "I like cheese.",
+    "noise_level": 0.5,
+    "project": true,
+    "decoded": "In the meantime, I'm going to share with you some of the stories that I've read in the past, and hopefully some of the stories that I've read in the past.",
+    "cosine_sim": 0.07534666359424591,
+    "orig_norm": 0.2117408961057663,
+    "noisy_norm": 0.2117408961057663,
+    "exact_match": false
+  },
+  {
+    "prompt": "I like cheese.",
+    "noise_level": 1.0,
+    "project": false,
+    "decoded": "janijanijanijanijanijanijanijanijanijanijanijanijanijanijanijanijani",
+    "cosine_sim": 0.06724545359611511,
+    "orig_norm": 0.2117408961057663,
+    "noisy_norm": 6.654744625091553,
+    "exact_match": false
+  },
+  {
+    "prompt": "I like cheese.",
+    "noise_level": 1.0,
+    "project": true,
+    "decoded": "It has reached the end of its useful life, and I am grateful to God for the knowledge and wisdom of the scriptures.",
+    "cosine_sim": -0.005596039351075888,
+    "orig_norm": 0.2117408961057663,
+    "noisy_norm": 0.2117409110069275,
+    "exact_match": false
+  },
+  {
+    "prompt": "He decided to go on an adventure.",
+    "noise_level": 0.0,
+    "project": false,
+    "decoded": "He decided to go on an adventure.",
+    "cosine_sim": 1.0000001192092896,
+    "orig_norm": 0.16935044527053833,
+    "noisy_norm": 0.16935044527053833,
+    "exact_match": true
+  },
+  {
+    "prompt": "He decided to go on an adventure.",
+    "noise_level": 0.0,
+    "project": true,
+    "decoded": "He decided to go on an adventure.",
+    "cosine_sim": 1.0000001192092896,
+    "orig_norm": 0.16935044527053833,
+    "noisy_norm": 0.16935043036937714,
+    "exact_match": true
+  },
+  {
+    "prompt": "He decided to go on an adventure.",
+    "noise_level": 0.01,
+    "project": false,
+    "decoded": "He decided to go on an adventure.",
+    "cosine_sim": 0.9562805891036987,
+    "orig_norm": 0.16935044527053833,
+    "noisy_norm": 0.17719972133636475,
+    "exact_match": true
+  },
+  {
+    "prompt": "He decided to go on an adventure.",
+    "noise_level": 0.01,
+    "project": true,
+    "decoded": "He decided to go on an adventure.",
+    "cosine_sim": 0.9536206722259521,
+    "orig_norm": 0.16935044527053833,
+    "noisy_norm": 0.16935043036937714,
+    "exact_match": true
+  },
+  {
+    "prompt": "He decided to go on an adventure.",
+    "noise_level": 0.02,
+    "project": false,
+    "decoded": "He decided to go on an adventure.",
+    "cosine_sim": 0.839750349521637,
+    "orig_norm": 0.16935044527053833,
+    "noisy_norm": 0.19324113428592682,
+    "exact_match": true
+  },
+  {
+    "prompt": "He decided to go on an adventure.",
+    "noise_level": 0.02,
+    "project": true,
+    "decoded": "He decided to go on an adventure.",
+    "cosine_sim": 0.8347406387329102,
+    "orig_norm": 0.16935044527053833,
+    "noisy_norm": 0.16935043036937714,
+    "exact_match": true
+  },
+  {
+    "prompt": "He decided to go on an adventure.",
+    "noise_level": 0.05,
+    "project": false,
+    "decoded": "He's decided to go on an adventure.",
+    "cosine_sim": 0.5386022925376892,
+    "orig_norm": 0.16935044527053833,
+    "noisy_norm": 0.3280130624771118,
+    "exact_match": false
+  },
+  {
+    "prompt": "He decided to go on an adventure.",
+    "noise_level": 0.05,
+    "project": true,
+    "decoded": "He appointed the decisionofFare went on an adventure to funerals.",
+    "cosine_sim": 0.5331063270568848,
+    "orig_norm": 0.16935044527053833,
+    "noisy_norm": 0.16935044527053833,
+    "exact_match": false
+  },
+  {
+    "prompt": "He decided to go on an adventure.",
+    "noise_level": 0.1,
+    "project": false,
+    "decoded": "- - - - - - - - -",
+    "cosine_sim": 0.31187254190444946,
+    "orig_norm": 0.16935044527053833,
+    "noisy_norm": 0.5706352591514587,
+    "exact_match": false
+  },
+  {
+    "prompt": "He decided to go on an adventure.",
+    "noise_level": 0.1,
+    "project": true,
+    "decoded": "The problem is, the problem is, the problem is, the problem is, the problem is.",
+    "cosine_sim": 0.3380061984062195,
+    "orig_norm": 0.16935044527053833,
+    "noisy_norm": 0.16935044527053833,
+    "exact_match": false
+  },
+  {
+    "prompt": "He decided to go on an adventure.",
+    "noise_level": 0.2,
+    "project": false,
+    "decoded": ", an,,, an, an, an, an, an, an., an, he got a.",
+    "cosine_sim": 0.15883344411849976,
+    "orig_norm": 0.16935044527053833,
+    "noisy_norm": 1.1042470932006836,
+    "exact_match": false
+  },
+  {
+    "prompt": "He decided to go on an adventure.",
+    "noise_level": 0.2,
+    "project": true,
+    "decoded": "He is referring to the full-fledged projects in the field of psychology. He is referring to the projects in the field of psychology.",
+    "cosine_sim": 0.16254037618637085,
+    "orig_norm": 0.16935044527053833,
+    "noisy_norm": 0.16935044527053833,
+    "exact_match": false
+  },
+  {
+    "prompt": "He decided to go on an adventure.",
+    "noise_level": 0.5,
+    "project": false,
+    "decoded": "netnetnetnetnet Ce Ce Ce Ce Ce Ce CeCEAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAMAM",
+    "cosine_sim": 0.058672308921813965,
+    "orig_norm": 0.16935044527053833,
+    "noisy_norm": 2.8279690742492676,
+    "exact_match": false
+  },
+  {
+    "prompt": "He decided to go on an adventure.",
+    "noise_level": 0.5,
+    "project": true,
+    "decoded": "I'd like to know if there's anything I can do to help you get started, and I'd like to know if there's anything I can do to help you get started.",
+    "cosine_sim": 0.05279546603560448,
+    "orig_norm": 0.16935044527053833,
+    "noisy_norm": 0.16935044527053833,
+    "exact_match": false
+  },
+  {
+    "prompt": "He decided to go on an adventure.",
+    "noise_level": 1.0,
+    "project": false,
+    "decoded": "neither neither neither neither neither neither neither.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*.*",
+    "cosine_sim": 0.018522776663303375,
+    "orig_norm": 0.16935044527053833,
+    "noisy_norm": 5.159380912780762,
+    "exact_match": false
+  },
+  {
+    "prompt": "He decided to go on an adventure.",
+    "noise_level": 1.0,
+    "project": true,
+    "decoded": "In the meantime, one of the most popular restaurants in the world is the one that offers the best service to its guests, and the other is the one that offers the best service to guests.",
+    "cosine_sim": 0.05523006618022919,
+    "orig_norm": 0.16935044527053833,
+    "noisy_norm": 0.16935044527053833,
+    "exact_match": false
+  },
+  {
+    "prompt": "She loved to play outside with her toys.",
+    "noise_level": 0.0,
+    "project": false,
+    "decoded": "She loved to play outside with her toys.",
+    "cosine_sim": 1.0000001192092896,
+    "orig_norm": 0.20140902698040009,
+    "noisy_norm": 0.20140902698040009,
+    "exact_match": true
+  },
+  {
+    "prompt": "She loved to play outside with her toys.",
+    "noise_level": 0.0,
+    "project": true,
+    "decoded": "She loved to play outside with her toys.",
+    "cosine_sim": 1.0000001192092896,
+    "orig_norm": 0.20140902698040009,
+    "noisy_norm": 0.2014090120792389,
+    "exact_match": true
+  },
+  {
+    "prompt": "She loved to play outside with her toys.",
+    "noise_level": 0.01,
+    "project": false,
+    "decoded": "She loved to play outside with her toys.",
+    "cosine_sim": 0.9550865888595581,
+    "orig_norm": 0.20140902698040009,
+    "noisy_norm": 0.2092999517917633,
+    "exact_match": true
+  },
+  {
+    "prompt": "She loved to play outside with her toys.",
+    "noise_level": 0.01,
+    "project": true,
+    "decoded": "She loved to play outside with her toys.",
+    "cosine_sim": 0.9531790018081665,
+    "orig_norm": 0.20140902698040009,
+    "noisy_norm": 0.2014090120792389,
+    "exact_match": true
+  },
+  {
+    "prompt": "She loved to play outside with her toys.",
+    "noise_level": 0.02,
+    "project": false,
+    "decoded": "She loved to play out with her toys.",
+    "cosine_sim": 0.8431270122528076,
+    "orig_norm": 0.20140902698040009,
+    "noisy_norm": 0.24008090794086456,
+    "exact_match": false
+  },
+  {
+    "prompt": "She loved to play outside with her toys.",
+    "noise_level": 0.02,
+    "project": true,
+    "decoded": "She liked to play outside with her toys.",
+    "cosine_sim": 0.8435269594192505,
+    "orig_norm": 0.20140902698040009,
+    "noisy_norm": 0.2014090120792389,
+    "exact_match": false
+  },
+  {
+    "prompt": "She loved to play outside with her toys.",
+    "noise_level": 0.05,
+    "project": false,
+    "decoded": "With her beautiful toys.",
+    "cosine_sim": 0.5264698266983032,
+    "orig_norm": 0.20140902698040009,
+    "noisy_norm": 0.37602999806404114,
+    "exact_match": false
+  },
+  {
+    "prompt": "She loved to play outside with her toys.",
+    "noise_level": 0.05,
+    "project": true,
+    "decoded": "She loved to have open-air play inside the outdoors with what she and the toy, and toys.",
+    "cosine_sim": 0.5447335243225098,
+    "orig_norm": 0.20140902698040009,
+    "noisy_norm": 0.20140902698040009,
+    "exact_match": false
+  },
+  {
+    "prompt": "She loved to play outside with her toys.",
+    "noise_level": 0.1,
+    "project": false,
+    "decoded": "She is a member of the board of trustees of the National Endowment for the Arts and a member of the advisory board of the National Endowment for the Arts.",
+    "cosine_sim": 0.21235570311546326,
+    "orig_norm": 0.20140902698040009,
+    "noisy_norm": 0.6772862076759338,
+    "exact_match": false
+  },
+  {
+    "prompt": "She loved to play outside with her toys.",
+    "noise_level": 0.1,
+    "project": true,
+    "decoded": "She likes the Christian congregation standing out in the sunshine and dressing up as children.",
+    "cosine_sim": 0.2933388352394104,
+    "orig_norm": 0.20140902698040009,
+    "noisy_norm": 0.20140902698040009,
+    "exact_match": false
+  },
+  {
+    "prompt": "She loved to play outside with her toys.",
+    "noise_level": 0.2,
+    "project": false,
+    "decoded": "were also sought to take part. were also of the following. were also of the following. were of the following.",
+    "cosine_sim": 0.14028969407081604,
+    "orig_norm": 0.20140902698040009,
+    "noisy_norm": 1.2630547285079956,
+    "exact_match": false
+  },
+  {
+    "prompt": "She loved to play outside with her toys.",
+    "noise_level": 0.2,
+    "project": true,
+    "decoded": "It's been a long time since I've heard about it, but I've heard about it.",
+    "cosine_sim": 0.15466152131557465,
+    "orig_norm": 0.20140902698040009,
+    "noisy_norm": 0.2014090120792389,
+    "exact_match": false
+  },
+  {
+    "prompt": "She loved to play outside with her toys.",
+    "noise_level": 0.5,
+    "project": false,
+    "decoded": ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
+    "cosine_sim": 0.10356257110834122,
+    "orig_norm": 0.20140902698040009,
+    "noisy_norm": 3.198361873626709,
+    "exact_match": false
+  },
+  {
+    "prompt": "She loved to play outside with her toys.",
+    "noise_level": 0.5,
+    "project": true,
+    "decoded": "In the meantime, he's got a lot of money to spend.",
+    "cosine_sim": 0.06096116080880165,
+    "orig_norm": 0.20140902698040009,
+    "noisy_norm": 0.20140902698040009,
+    "exact_match": false
+  },
+  {
+    "prompt": "She loved to play outside with her toys.",
+    "noise_level": 1.0,
+    "project": false,
+    "decoded": "Chin Chin Chin Chin Chin Chin Chin Chin Chin Chin Chin Chin Chin Chin Chin Chin Chin things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things things",
+    "cosine_sim": 0.023094069212675095,
+    "orig_norm": 0.20140902698040009,
+    "noisy_norm": 6.317428112030029,
+    "exact_match": false
+  },
+  {
+    "prompt": "She loved to play outside with her toys.",
+    "noise_level": 1.0,
+    "project": true,
+    "decoded": "The king's wife, however, did not return to the palace.The king had been ordered to return to the palace.The king had been ordered to return to the palace.",
+    "cosine_sim": -0.002204291522502899,
+    "orig_norm": 0.20140902698040009,
+    "noisy_norm": 0.2014090120792389,
+    "exact_match": false
+  }
+]

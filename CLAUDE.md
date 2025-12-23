@@ -28,3 +28,13 @@ z (optimizable, 1024-dim)
 **Scientific question**: When we optimize z to make SONAR-LLM predict a specific next sentence, does z converge to something semantically meaningful (like a plausible preceding sentence), or does it find adversarial embeddings?
 
 **Current finding**: The optimized z decodes to garbage/adversarial text, but successfully causes the model to predict the exact target sentence. Different random initializations converge to different garbage z's but produce the same target prediction.
+
+### Important: Editing Guidelines
+
+**When asked to make a specific change, ONLY make that change.** Do not:
+- Reorganize file structure
+- Remove or move cells/code blocks
+- "Clean up" or refactor unrelated code
+- Change formatting or style of unchanged code
+
+The user's file organization (e.g., `#%%` cell markers, code placement) is intentional.

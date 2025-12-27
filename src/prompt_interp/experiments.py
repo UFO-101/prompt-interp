@@ -105,6 +105,11 @@ def run_next_sentence_experiment(
         z_tokens = tokenize_for_decoder(decoded_z, sonar_wrapper).unsqueeze(0)
         z_ppl_loss = decoder_ce_loss(z_proj, z_tokens, sonar_wrapper)
 
+        # Compute roundtrip error: z -> decode -> encode -> z_reencoded
+        z_reencoded = sonar_wrapper.encode([decoded_z]).unsqueeze(1)  # (1, 1, 1024)
+        roundtrip_l2 = (z_proj - z_reencoded).norm().item()
+        roundtrip_cos = F.cosine_similarity(z_proj.view(-1), z_reencoded.view(-1), dim=0).item()
+
         loss = pred_loss + perplexity_weight * z_ppl_loss
 
         # Cosine similarity for logging (use original z, not noised)
@@ -119,6 +124,14 @@ def run_next_sentence_experiment(
                 decoded_pred = sonar_wrapper.decode(pred_emb.squeeze(1))[0]
                 z_perplexity = torch.exp(z_ppl_loss).item()
 
+                # Roundtrip prediction: z_reencoded -> SONAR-LLM -> decode
+                if context_emb is not None:
+                    rt_seq = torch.cat([z_reencoded, context_emb], dim=1)
+                else:
+                    rt_seq = z_reencoded
+                rt_pred_emb = predict_next_embedding(rt_seq, generator)[:, -1:, :]
+                decoded_rt_pred = sonar_wrapper.decode(rt_pred_emb.squeeze(1))[0]
+
             trajectory.append({
                 "step": step,
                 "loss": loss.item(),
@@ -127,31 +140,39 @@ def run_next_sentence_experiment(
                 "similarity": cos_sim,
                 "decoded_z": decoded_z,
                 "decoded_pred": decoded_pred,
+                "decoded_rt_pred": decoded_rt_pred,
                 "z_perplexity": z_perplexity,
+                "roundtrip_l2": roundtrip_l2,
+                "roundtrip_cos": roundtrip_cos,
             })
 
             if verbose:
-                print(f"Step {step:3d} | pred_loss={pred_loss.item():.3f} | z_ppl={z_perplexity:.1f} | sim={cos_sim:.3f}")
-                print(f"    z decodes to: \"{decoded_z[:60]}\"")
-                print(f"    prediction:   \"{decoded_pred[:60]}\"\n")
+                print(f"Step {step:3d} | pred_loss={pred_loss.item():.3f} | z_ppl={z_perplexity:.1f} | sim={cos_sim:.3f} | rt_l2={roundtrip_l2:.3f} | rt_cos={roundtrip_cos:.3f}")
+                print(f"    z decodes to:  \"{decoded_z}\"")
+                print(f"    prediction:    \"{decoded_pred}\"")
+                print(f"    rt prediction: \"{decoded_rt_pred}\"\n")
 
-    # Final evaluation
+    # Final evaluation: decode z -> re-encode -> run SONAR-LLM -> decode prediction
     with torch.no_grad():
         z_final = project_to_norm(z, target_norm)
-        if context_emb is not None:
-            seq_final = torch.cat([z_final, context_emb], dim=1)
-        else:
-            seq_final = z_final
-        pred_final = predict_next_embedding(seq_final, generator)[:, -1:, :]
         decoded_z_final = sonar_wrapper.decode(z_final.squeeze(1))[0]
+        z_reencoded = sonar_wrapper.encode([decoded_z_final]).unsqueeze(1)  # (1, 1, 1024)
+        final_roundtrip_l2 = (z_final - z_reencoded).norm().item()
+        final_roundtrip_cos = F.cosine_similarity(z_final.view(-1), z_reencoded.view(-1), dim=0).item()
+        if context_emb is not None:
+            seq_final = torch.cat([z_reencoded, context_emb], dim=1)
+        else:
+            seq_final = z_reencoded
+        pred_final = predict_next_embedding(seq_final, generator)[:, -1:, :]
         decoded_pred_final = sonar_wrapper.decode(pred_final.squeeze(1))[0]
 
     if verbose:
         print("=" * 70)
-        print("FINAL RESULT:")
-        print(f"  z decodes to: \"{decoded_z_final}\"")
-        print(f"  prediction:   \"{decoded_pred_final}\"")
-        print(f"  target:       \"{target_text}\"")
+        print("FINAL RESULT (z decoded -> re-encoded -> predict):")
+        print(f"  z decodes to:  \"{decoded_z_final}\"")
+        print(f"  roundtrip:     L2={final_roundtrip_l2:.3f}, cos={final_roundtrip_cos:.3f}")
+        print(f"  RT prediction:    \"{decoded_pred_final}\"")
+        print(f"  target:        \"{target_text}\"")
         print(f"  match: {decoded_pred_final.strip() == target_text.strip()}")
         print("=" * 70)
 
@@ -163,7 +184,9 @@ def run_next_sentence_experiment(
         "final_pred": decoded_pred_final,
         "final_loss": trajectory[-1]["loss"],
         "final_similarity": trajectory[-1]["similarity"],
-        "trajectory": trajectory,
+        "final_roundtrip_l2": final_roundtrip_l2,
+        "final_roundtrip_cos": final_roundtrip_cos,
+        # "trajectory": trajectory,
         "success": decoded_pred_final.strip() == target_text.strip(),
     }
 
@@ -179,18 +202,18 @@ for p in generator.parameters():
 #%%
 run_next_sentence_experiment(
     init_text="I like cheese.",
-    context_text="She is going to the shop to buy eggs",
+    # context_text="She is going to the shop to buy eggs",
     target_text="She went to the shop to buy eggs",
     # target_text="She asked her mom if she could have a new toy.",
     sonar_wrapper=sonar_wrapper,
     generator=generator,
     n_steps=40,
-    lr=0.01,
+    lr=0.02,
     log_every=2,
     n_noise_samples=63,
-    # noise_level=0.06,
-    noise_level=0.09,
-    perplexity_weight=0.1,
+    noise_level=0.06,
+    # noise_level=0.09,
+    perplexity_weight=0.0,
     verbose=True,
 )
 

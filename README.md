@@ -44,7 +44,8 @@ uv sync
 
 Ideas to try:
  - [done] Add perplexity term.
+ - [done] Each iteration, update z to be the re-encoding.
  - PCA with different learning rates.
 
 
- - Test is jailbreaks transfer to normal TinyStories models
+ - Test if jailbreaks transfer to normal TinyStories models

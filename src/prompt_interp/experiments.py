@@ -23,6 +23,34 @@ def add_noise_with_projection(z: torch.Tensor, noise_level: float) -> torch.Tens
     return z_noisy * (orig_norm / (z_noisy.norm(dim=-1, keepdim=True) + 1e-8))
 
 
+def log_z_state(
+    z: torch.Tensor,
+    context_emb: torch.Tensor | None,
+    target_emb: torch.Tensor,
+    sonar_wrapper: SonarWrapper,
+    generator: SonarLLMGenerator,
+    label: str,
+    verbose: bool,
+) -> tuple[str, str, float]:
+    """Decode z, predict from it, compute similarity. Returns (decoded_z, decoded_pred, cos_sim)."""
+    with torch.no_grad():
+        decoded_z: str = sonar_wrapper.decode(z.squeeze(1))[0]
+        if context_emb is not None:
+            seq = torch.cat([z, context_emb], dim=1)
+        else:
+            seq = z
+        pred_emb = predict_next_embedding(seq, generator)[:, -1:, :]
+        decoded_pred: str = sonar_wrapper.decode(pred_emb.squeeze(1))[0]
+        cos_sim: float = F.cosine_similarity(pred_emb.view(-1), target_emb.view(-1), dim=0).item()
+
+    if verbose:
+        print(f"{label} | sim={cos_sim:.3f}")
+        print(f"    z decodes to:  \"{decoded_z}\"")
+        print(f"    prediction:    \"{decoded_pred}\"\n")
+
+    return decoded_z, decoded_pred, cos_sim
+
+
 def run_next_sentence_experiment(
     init_text: str,
     target_text: str,
@@ -72,27 +100,27 @@ def run_next_sentence_experiment(
     # Optimization
     z = init_emb.clone().requires_grad_(True)  # (1, 1, 1024)
     optimizer = torch.optim.Adam([z], lr=lr)
-    trajectory = []
+    trajectory: list[dict] = []
     samples_per_accum = n_noise_samples // accum_steps
+    if samples_per_accum < 1:
+        raise ValueError(f"n_noise_samples ({n_noise_samples}) must be >= accum_steps ({accum_steps})")
+
+    # Log and initialize decoded_z (z is already a real sentence embedding with natural norm)
+    decoded_z, _, _ = log_z_state(z, context_emb, target_emb, sonar_wrapper, generator, "Init", verbose)
 
     for step in range(n_steps):
         optimizer.zero_grad()
-        z_proj = project_to_norm(z, target_norm)
 
-        # Compute perplexity loss and roundtrip error
-        decoded_z = sonar_wrapper.decode(z_proj.squeeze(1))[0]
+        # Compute perplexity loss (using decoded_z from previous roundtrip, or init)
         z_tokens = tokenize_for_decoder(decoded_z, sonar_wrapper).unsqueeze(0)
-        z_ppl_loss = decoder_ce_loss(z_proj, z_tokens, sonar_wrapper)
+        z_ppl_loss = decoder_ce_loss(z, z_tokens, sonar_wrapper)
         ppl_weight = perplexity_weight * (step / (n_steps - 1)) if n_steps > 1 else perplexity_weight
         (ppl_weight * z_ppl_loss).backward(retain_graph=True)
-        z_reencoded = sonar_wrapper.encode([decoded_z]).unsqueeze(1)
-        roundtrip_l2 = (z_proj - z_reencoded).norm().item()
-        roundtrip_cos = F.cosine_similarity(z_proj.view(-1), z_reencoded.view(-1), dim=0).item()
 
         # Accumulate gradients over multiple forward passes
         total_pred_loss = 0.0
         for accum_idx in range(accum_steps):
-            z_batch = add_noise_with_projection(z_proj.expand(samples_per_accum, -1, -1), noise_level)
+            z_batch = add_noise_with_projection(z.expand(samples_per_accum, -1, -1), noise_level)
 
             # Concatenate with context to form full sequence
             if context_emb is not None:
@@ -111,33 +139,32 @@ def run_next_sentence_experiment(
             pred_loss.backward(retain_graph=(accum_idx < accum_steps - 1))
             total_pred_loss += pred_loss.item()
 
+        # Update z: project after gradient update, then roundtrip to stay on sentence manifold
         optimizer.step()
-
-        # Predict from unnoised z for logging
+        should_log = step % log_every == 0 or step == n_steps - 1
         with torch.no_grad():
-            if context_emb is not None:
-                seq_unnoised = torch.cat([z_proj, context_emb], dim=1)
-            else:
-                seq_unnoised = z_proj
-            pred_emb = predict_next_embedding(seq_unnoised, generator)[:, -1:, :]
+            # After optimizer.step()
+            if should_log:
+                decoded_after_opt: str = sonar_wrapper.decode(z.squeeze(1))[0]
 
-        # Cosine similarity for logging
-        cos_sim = F.cosine_similarity(pred_emb.view(-1), target_emb.view(-1), dim=0).item()
-        total_loss = total_pred_loss + ppl_weight * z_ppl_loss.item()
+            # After projection
+            z.data = project_to_norm(z, target_norm).data
+            if should_log:
+                decoded_after_proj: str = sonar_wrapper.decode(z.squeeze(1))[0]
 
+            # Roundtrip: decode then encode
+            decoded_z = sonar_wrapper.decode(z.squeeze(1))[0]
+            z.data = sonar_wrapper.encode([decoded_z]).unsqueeze(1)
 
-        if step % log_every == 0 or step == n_steps - 1:
-            with torch.no_grad():
-                decoded_pred = sonar_wrapper.decode(pred_emb.squeeze(1))[0]
-                z_perplexity = torch.exp(z_ppl_loss).item()
-
-                # Roundtrip prediction: z_reencoded -> SONAR-LLM -> decode
-                if context_emb is not None:
-                    rt_seq = torch.cat([z_reencoded, context_emb], dim=1)
-                else:
-                    rt_seq = z_reencoded
-                rt_pred_emb = predict_next_embedding(rt_seq, generator)[:, -1:, :]
-                decoded_rt_pred = sonar_wrapper.decode(rt_pred_emb.squeeze(1))[0]
+        # Log state after update
+        if should_log:
+            decoded_after_enc, decoded_pred, cos_sim = log_z_state(
+                z, context_emb, target_emb, sonar_wrapper, generator,
+                label=f"Step {step:3d} | pred_loss={total_pred_loss:.3f}",
+                verbose=False,  # We'll print manually to include intermediate stages
+            )
+            z_perplexity: float = torch.exp(z_ppl_loss).item()
+            total_loss = total_pred_loss + ppl_weight * z_ppl_loss.item()
 
             trajectory.append({
                 "step": step,
@@ -145,40 +172,26 @@ def run_next_sentence_experiment(
                 "pred_loss": total_pred_loss,
                 "z_ppl_loss": z_ppl_loss.item(),
                 "similarity": cos_sim,
-                "decoded_z": decoded_z,
+                "decoded_z": decoded_after_enc,
                 "decoded_pred": decoded_pred,
-                "decoded_rt_pred": decoded_rt_pred,
                 "z_perplexity": z_perplexity,
-                "roundtrip_l2": roundtrip_l2,
-                "roundtrip_cos": roundtrip_cos,
             })
 
             if verbose:
-                print(f"Step {step:3d} | pred_loss={total_pred_loss:.3f} | z_ppl={z_perplexity:.1f} | sim={cos_sim:.3f} | rt_l2={roundtrip_l2:.3f} | rt_cos={roundtrip_cos:.3f}")
-                print(f"    z decodes to:  \"{decoded_z}\"")
-                print(f"    prediction:    \"{decoded_pred}\"")
-                print(f"    rt prediction: \"{decoded_rt_pred}\"\n")
+                print(f"Step {step:3d} | pred_loss={total_pred_loss:.3f} | z_ppl={z_perplexity:.1f} | sim={cos_sim:.3f}")
+                print(f"    after opt:     \"{decoded_after_opt}\"")
+                print(f"    after proj:    \"{decoded_after_proj}\"")
+                print(f"    after re-enc:  \"{decoded_after_enc}\"")
+                print(f"    prediction:    \"{decoded_pred}\"\n")
 
-    # Final evaluation: decode z -> re-encode -> run SONAR-LLM -> decode prediction
-    with torch.no_grad():
-        z_final = project_to_norm(z, target_norm)
-        decoded_z_final = sonar_wrapper.decode(z_final.squeeze(1))[0]
-        z_reencoded = sonar_wrapper.encode([decoded_z_final]).unsqueeze(1)  # (1, 1, 1024)
-        final_roundtrip_l2 = (z_final - z_reencoded).norm().item()
-        final_roundtrip_cos = F.cosine_similarity(z_final.view(-1), z_reencoded.view(-1), dim=0).item()
-        if context_emb is not None:
-            seq_final = torch.cat([z_reencoded, context_emb], dim=1)
-        else:
-            seq_final = z_reencoded
-        pred_final = predict_next_embedding(seq_final, generator)[:, -1:, :]
-        decoded_pred_final = sonar_wrapper.decode(pred_final.squeeze(1))[0]
-
+    # Final evaluation
     if verbose:
         print("=" * 70)
-        print("FINAL RESULT (z decoded -> re-encoded -> predict):")
-        print(f"  z decodes to:  \"{decoded_z_final}\"")
-        print(f"  roundtrip:     L2={final_roundtrip_l2:.3f}, cos={final_roundtrip_cos:.3f}")
-        print(f"  RT prediction:    \"{decoded_pred_final}\"")
+        print("FINAL RESULT:")
+    final_decoded_z, decoded_pred_final, final_sim = log_z_state(
+        z, context_emb, target_emb, sonar_wrapper, generator, "Final", verbose
+    )
+    if verbose:
         print(f"  target:        \"{target_text}\"")
         print(f"  match: {decoded_pred_final.strip() == target_text.strip()}")
         print("=" * 70)
@@ -187,13 +200,10 @@ def run_next_sentence_experiment(
         "init_text": init_text,
         "context_sents": context_sents,
         "target_text": target_text,
-        "final_z": decoded_z_final,
+        "final_z": final_decoded_z,
         "final_pred": decoded_pred_final,
         "final_loss": trajectory[-1]["loss"],
-        "final_similarity": trajectory[-1]["similarity"],
-        "final_roundtrip_l2": final_roundtrip_l2,
-        "final_roundtrip_cos": final_roundtrip_cos,
-        # "trajectory": trajectory,
+        "final_similarity": final_sim,
         "success": decoded_pred_final.strip() == target_text.strip(),
     }
 
@@ -210,18 +220,18 @@ for p in generator.parameters():
 run_next_sentence_experiment(
     init_text="I like cheese.",
     # context_text="She is going to the shop to buy eggs",
-    target_text="She went to the shop to buy eggs",
-    # target_text="She asked her mom if she could have a new toy.",
+    # target_text="She went to the shop to buy eggs",
+    target_text="She asked her mom if she could have a new toy.",
     sonar_wrapper=sonar_wrapper,
     generator=generator,
-    n_steps=20,
+    n_steps=60,
     lr=0.02,
     log_every=2,
     n_noise_samples=64,
     # noise_level=0.06,
-    noise_level=0.09,
-    perplexity_weight=0.0,
-    accum_steps=10,
+    noise_level=0.05,
+    perplexity_weight=0.01,
+    accum_steps=1,
     verbose=True,
 )
 

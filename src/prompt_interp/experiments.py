@@ -35,7 +35,8 @@ def run_next_sentence_experiment(
     verbose: bool = True,
     n_noise_samples: int = 7,
     noise_level: float = 0.03,
-    perplexity_weight: float = 1.0,
+    perplexity_weight: float = 0.0,
+    accum_steps: int = 1,
 ) -> dict:
     """
     Find z such that SONAR-LLM([z, context...]) predicts target_text at the final position.
@@ -72,53 +73,58 @@ def run_next_sentence_experiment(
     z = init_emb.clone().requires_grad_(True)  # (1, 1, 1024)
     optimizer = torch.optim.Adam([z], lr=lr)
     trajectory = []
-    batch_size = 1 + n_noise_samples
-    target_tokens_batch = target_tokens.expand(batch_size, -1)
+    samples_per_accum = n_noise_samples // accum_steps
 
     for step in range(n_steps):
         optimizer.zero_grad()
         z_proj = project_to_norm(z, target_norm)
 
-        # Create batch of z: original + noised copies
-        z_expanded = z_proj.expand(n_noise_samples, -1, -1)
-        z_noisy = add_noise_with_projection(z_expanded, noise_level)
-        z_batch = torch.cat([z_proj, z_noisy], dim=0)  # (batch, 1, 1024)
-
-        # Concatenate with context to form full sequence
-        if context_emb is not None:
-            context_batch = context_emb.expand(batch_size, -1, -1)  # (batch, n_context, 1024)
-            seq_batch = torch.cat([z_batch, context_batch], dim=1)  # (batch, seq_len, 1024)
-        else:
-            seq_batch = z_batch  # (batch, 1, 1024)
-
-        # Forward through SONAR-LLM
-        pred_emb_batch = predict_next_embedding(seq_batch, generator)  # (batch, seq_len, 1024)
-
-        # Extract prediction at last position
-        pred_emb_last = pred_emb_batch[:, -1:, :]  # (batch, 1, 1024)
-
-        # Decoder CE loss on last position prediction
-        pred_loss = decoder_ce_loss(pred_emb_last, target_tokens_batch, sonar_wrapper)
-
-        # Perplexity loss: encourage z to decode cleanly
+        # Compute perplexity loss and roundtrip error
         decoded_z = sonar_wrapper.decode(z_proj.squeeze(1))[0]
         z_tokens = tokenize_for_decoder(decoded_z, sonar_wrapper).unsqueeze(0)
         z_ppl_loss = decoder_ce_loss(z_proj, z_tokens, sonar_wrapper)
-
-        # Compute roundtrip error: z -> decode -> encode -> z_reencoded
-        z_reencoded = sonar_wrapper.encode([decoded_z]).unsqueeze(1)  # (1, 1, 1024)
+        ppl_weight = perplexity_weight * (step / (n_steps - 1)) if n_steps > 1 else perplexity_weight
+        (ppl_weight * z_ppl_loss).backward(retain_graph=True)
+        z_reencoded = sonar_wrapper.encode([decoded_z]).unsqueeze(1)
         roundtrip_l2 = (z_proj - z_reencoded).norm().item()
         roundtrip_cos = F.cosine_similarity(z_proj.view(-1), z_reencoded.view(-1), dim=0).item()
 
-        ppl_weight = perplexity_weight * (step / (n_steps - 1)) if n_steps > 1 else perplexity_weight
-        loss = pred_loss + ppl_weight * z_ppl_loss
+        # Accumulate gradients over multiple forward passes
+        total_pred_loss = 0.0
+        for accum_idx in range(accum_steps):
+            z_batch = add_noise_with_projection(z_proj.expand(samples_per_accum, -1, -1), noise_level)
 
-        # Cosine similarity for logging (use original z, not noised)
-        pred_emb = pred_emb_last[0:1]  # (1, 1, 1024)
-        cos_sim = F.cosine_similarity(pred_emb.view(-1), target_emb.view(-1), dim=0).item()
+            # Concatenate with context to form full sequence
+            if context_emb is not None:
+                context_batch = context_emb.expand(samples_per_accum, -1, -1)
+                seq_batch = torch.cat([z_batch, context_batch], dim=1)
+            else:
+                seq_batch = z_batch
 
-        loss.backward()
+            # Forward through SONAR-LLM
+            pred_emb_batch = predict_next_embedding(seq_batch, generator)
+            pred_emb_last = pred_emb_batch[:, -1:, :]
+
+            # Decoder CE loss (scaled for accumulation)
+            target_tokens_accum = target_tokens.expand(samples_per_accum, -1)
+            pred_loss = decoder_ce_loss(pred_emb_last, target_tokens_accum, sonar_wrapper) / accum_steps
+            pred_loss.backward(retain_graph=(accum_idx < accum_steps - 1))
+            total_pred_loss += pred_loss.item()
+
         optimizer.step()
+
+        # Predict from unnoised z for logging
+        with torch.no_grad():
+            if context_emb is not None:
+                seq_unnoised = torch.cat([z_proj, context_emb], dim=1)
+            else:
+                seq_unnoised = z_proj
+            pred_emb = predict_next_embedding(seq_unnoised, generator)[:, -1:, :]
+
+        # Cosine similarity for logging
+        cos_sim = F.cosine_similarity(pred_emb.view(-1), target_emb.view(-1), dim=0).item()
+        total_loss = total_pred_loss + ppl_weight * z_ppl_loss.item()
+
 
         if step % log_every == 0 or step == n_steps - 1:
             with torch.no_grad():
@@ -135,8 +141,8 @@ def run_next_sentence_experiment(
 
             trajectory.append({
                 "step": step,
-                "loss": loss.item(),
-                "pred_loss": pred_loss.item(),
+                "loss": total_loss,
+                "pred_loss": total_pred_loss,
                 "z_ppl_loss": z_ppl_loss.item(),
                 "similarity": cos_sim,
                 "decoded_z": decoded_z,
@@ -148,7 +154,7 @@ def run_next_sentence_experiment(
             })
 
             if verbose:
-                print(f"Step {step:3d} | pred_loss={pred_loss.item():.3f} | z_ppl={z_perplexity:.1f} | sim={cos_sim:.3f} | rt_l2={roundtrip_l2:.3f} | rt_cos={roundtrip_cos:.3f}")
+                print(f"Step {step:3d} | pred_loss={total_pred_loss:.3f} | z_ppl={z_perplexity:.1f} | sim={cos_sim:.3f} | rt_l2={roundtrip_l2:.3f} | rt_cos={roundtrip_cos:.3f}")
                 print(f"    z decodes to:  \"{decoded_z}\"")
                 print(f"    prediction:    \"{decoded_pred}\"")
                 print(f"    rt prediction: \"{decoded_rt_pred}\"\n")
@@ -208,13 +214,14 @@ run_next_sentence_experiment(
     # target_text="She asked her mom if she could have a new toy.",
     sonar_wrapper=sonar_wrapper,
     generator=generator,
-    n_steps=40,
+    n_steps=20,
     lr=0.02,
     log_every=2,
-    n_noise_samples=63,
-    noise_level=0.06,
-    # noise_level=0.09,
-    perplexity_weight=0.1,
+    n_noise_samples=64,
+    # noise_level=0.06,
+    noise_level=0.09,
+    perplexity_weight=0.0,
+    accum_steps=10,
     verbose=True,
 )
 

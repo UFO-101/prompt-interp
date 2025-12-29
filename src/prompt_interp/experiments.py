@@ -23,6 +23,36 @@ def add_noise_with_projection(z: torch.Tensor, noise_level: float) -> torch.Tens
     return z_noisy * (orig_norm / (z_noisy.norm(dim=-1, keepdim=True) + 1e-8))
 
 
+def eval_two_pass(
+    z: torch.Tensor,
+    context_emb: torch.Tensor | None,
+    target_emb: torch.Tensor,
+    sonar_wrapper: SonarWrapper,
+    generator: SonarLLMGenerator,
+) -> tuple[str, str, str, float]:
+    """Eval pass: z -> pred_z1 -> re-encode -> pred_z2. Returns (decoded_z, decoded_pred_z1, decoded_pred_z2, cos_sim)."""
+    with torch.no_grad():
+        decoded_z: str = sonar_wrapper.decode(z.squeeze(1))[0]
+
+        # First pass: z -> SONAR-LLM -> pred_z1
+        pred_z1 = predict_next_embedding(z, generator)[:, -1:, :]
+        decoded_pred_z1: str = sonar_wrapper.decode(pred_z1.squeeze(1))[0]
+
+        # Re-encode pred_z1 to get it on the sentence manifold
+        pred_z1_reenc = sonar_wrapper.encode([decoded_pred_z1]).unsqueeze(1)
+
+        # Second pass: [pred_z1_reenc, context] -> SONAR-LLM -> pred_z2
+        if context_emb is not None:
+            seq = torch.cat([pred_z1_reenc, context_emb], dim=1)
+        else:
+            seq = pred_z1_reenc
+        pred_z2 = predict_next_embedding(seq, generator)[:, -1:, :]
+        decoded_pred_z2: str = sonar_wrapper.decode(pred_z2.squeeze(1))[0]
+        cos_sim: float = F.cosine_similarity(pred_z2.view(-1), target_emb.view(-1), dim=0).item()
+
+    return decoded_z, decoded_pred_z1, decoded_pred_z2, cos_sim
+
+
 def log_z_state(
     z: torch.Tensor,
     context_emb: torch.Tensor | None,
@@ -31,24 +61,44 @@ def log_z_state(
     generator: SonarLLMGenerator,
     label: str,
     verbose: bool,
-) -> tuple[str, str, float]:
-    """Decode z, predict from it, compute similarity. Returns (decoded_z, decoded_pred, cos_sim)."""
+) -> tuple[str, str, str, str, str, float, float]:
+    """Two-pass prediction (train + eval). Returns (decoded_z, decoded_pred_z1, decoded_pred_z1_reenc, train_pred_z2, eval_pred_z2, train_sim, eval_sim)."""
     with torch.no_grad():
         decoded_z: str = sonar_wrapper.decode(z.squeeze(1))[0]
+
+        # First pass: z -> SONAR-LLM -> pred_z1
+        pred_z1 = predict_next_embedding(z, generator)[:, -1:, :]
+        decoded_pred_z1: str = sonar_wrapper.decode(pred_z1.squeeze(1))[0]
+
+        # Train pass: [pred_z1, context] -> SONAR-LLM -> pred_z2 (no re-encoding)
         if context_emb is not None:
-            seq = torch.cat([z, context_emb], dim=1)
+            seq_train = torch.cat([pred_z1, context_emb], dim=1)
         else:
-            seq = z
-        pred_emb = predict_next_embedding(seq, generator)[:, -1:, :]
-        decoded_pred: str = sonar_wrapper.decode(pred_emb.squeeze(1))[0]
-        cos_sim: float = F.cosine_similarity(pred_emb.view(-1), target_emb.view(-1), dim=0).item()
+            seq_train = pred_z1
+        train_pred_z2 = predict_next_embedding(seq_train, generator)[:, -1:, :]
+        decoded_train_pred_z2: str = sonar_wrapper.decode(train_pred_z2.squeeze(1))[0]
+        train_sim: float = F.cosine_similarity(train_pred_z2.view(-1), target_emb.view(-1), dim=0).item()
+
+        # Eval pass: re-encode pred_z1, then predict
+        pred_z1_reenc = sonar_wrapper.encode([decoded_pred_z1]).unsqueeze(1)
+        decoded_pred_z1_reenc: str = sonar_wrapper.decode(pred_z1_reenc.squeeze(1))[0]
+        if context_emb is not None:
+            seq_eval = torch.cat([pred_z1_reenc, context_emb], dim=1)
+        else:
+            seq_eval = pred_z1_reenc
+        eval_pred_z2 = predict_next_embedding(seq_eval, generator)[:, -1:, :]
+        decoded_eval_pred_z2: str = sonar_wrapper.decode(eval_pred_z2.squeeze(1))[0]
+        eval_sim: float = F.cosine_similarity(eval_pred_z2.view(-1), target_emb.view(-1), dim=0).item()
 
     if verbose:
-        print(f"{label} | sim={cos_sim:.3f}")
-        print(f"    z decodes to:  \"{decoded_z}\"")
-        print(f"    prediction:    \"{decoded_pred}\"\n")
+        print(f"{label} | train_sim={train_sim:.3f} | eval_sim={eval_sim:.3f}")
+        print(f"    z decodes to:     \"{decoded_z}\"")
+        print(f"    pred_z1:          \"{decoded_pred_z1}\"")
+        print(f"    pred_z1 (reenc):  \"{decoded_pred_z1_reenc}\"")
+        print(f"    train pred_z2:    \"{decoded_train_pred_z2}\"")
+        print(f"    eval pred_z2:     \"{decoded_eval_pred_z2}\"\n")
 
-    return decoded_z, decoded_pred, cos_sim
+    return decoded_z, decoded_pred_z1, decoded_pred_z1_reenc, decoded_train_pred_z2, decoded_eval_pred_z2, train_sim, eval_sim
 
 
 def run_next_sentence_experiment(
@@ -106,7 +156,7 @@ def run_next_sentence_experiment(
         raise ValueError(f"n_noise_samples ({n_noise_samples}) must be >= accum_steps ({accum_steps})")
 
     # Log and initialize decoded_z (z is already a real sentence embedding with natural norm)
-    decoded_z, _, _ = log_z_state(z, context_emb, target_emb, sonar_wrapper, generator, "Init", verbose)
+    decoded_z, _, _, _, _, _, _ = log_z_state(z, context_emb, target_emb, sonar_wrapper, generator, "Init", verbose)
 
     for step in range(n_steps):
         optimizer.zero_grad()
@@ -117,25 +167,35 @@ def run_next_sentence_experiment(
         ppl_weight = perplexity_weight * (step / (n_steps - 1)) if n_steps > 1 else perplexity_weight
         (ppl_weight * z_ppl_loss).backward(retain_graph=True)
 
+        # Pre-project context to hidden space (if any)
+        if context_emb is not None:
+            context_hidden = generator.forward_proj(context_emb)
+        else:
+            context_hidden = None
+
         # Accumulate gradients over multiple forward passes
         total_pred_loss = 0.0
         for accum_idx in range(accum_steps):
-            z_batch = add_noise_with_projection(z.expand(samples_per_accum, -1, -1), noise_level)
+            # Add noise to z and carry through both passes
+            z_noisy = add_noise_with_projection(z.expand(samples_per_accum, -1, -1), noise_level)
 
-            # Concatenate with context to form full sequence
-            if context_emb is not None:
-                context_batch = context_emb.expand(samples_per_accum, -1, -1)
-                seq_batch = torch.cat([z_batch, context_batch], dim=1)
+            # First pass: z_noisy -> forward_proj -> llama -> hidden1 (stay in hidden space)
+            hidden_z = generator.forward_proj(z_noisy)
+            out1 = generator.llama_model(inputs_embeds=hidden_z, output_hidden_states=True)
+            hidden1 = out1.hidden_states[-1][:, -1:, :]  # Last position only
+
+            # Second pass: [hidden1, context_hidden] -> llama -> reverse_proj -> pred_z2
+            if context_hidden is not None:
+                context_hidden_batch = context_hidden.expand(samples_per_accum, -1, -1)
+                hidden_seq = torch.cat([hidden1, context_hidden_batch], dim=1)
             else:
-                seq_batch = z_batch
-
-            # Forward through SONAR-LLM
-            pred_emb_batch = predict_next_embedding(seq_batch, generator)
-            pred_emb_last = pred_emb_batch[:, -1:, :]
+                hidden_seq = hidden1
+            out2 = generator.llama_model(inputs_embeds=hidden_seq, output_hidden_states=True)
+            pred_z2 = generator.reverse_proj(out2.hidden_states[-1][:, -1:, :])
 
             # Decoder CE loss (scaled for accumulation)
             target_tokens_accum = target_tokens.expand(samples_per_accum, -1)
-            pred_loss = decoder_ce_loss(pred_emb_last, target_tokens_accum, sonar_wrapper) / accum_steps
+            pred_loss = decoder_ce_loss(pred_z2, target_tokens_accum, sonar_wrapper) / accum_steps
             pred_loss.backward(retain_graph=(accum_idx < accum_steps - 1))
             total_pred_loss += pred_loss.item()
 
@@ -158,7 +218,7 @@ def run_next_sentence_experiment(
 
         # Log state after update
         if should_log:
-            decoded_after_enc, decoded_pred, cos_sim = log_z_state(
+            decoded_after_enc, decoded_pred_z1, decoded_pred_z1_reenc, train_pred_z2, eval_pred_z2, train_sim, eval_sim = log_z_state(
                 z, context_emb, target_emb, sonar_wrapper, generator,
                 label=f"Step {step:3d} | pred_loss={total_pred_loss:.3f}",
                 verbose=False,  # We'll print manually to include intermediate stages
@@ -171,29 +231,37 @@ def run_next_sentence_experiment(
                 "loss": total_loss,
                 "pred_loss": total_pred_loss,
                 "z_ppl_loss": z_ppl_loss.item(),
-                "similarity": cos_sim,
+                "train_similarity": train_sim,
+                "eval_similarity": eval_sim,
                 "decoded_z": decoded_after_enc,
-                "decoded_pred": decoded_pred,
+                "decoded_pred_z1": decoded_pred_z1,
+                "decoded_pred_z1_reenc": decoded_pred_z1_reenc,
+                "train_pred_z2": train_pred_z2,
+                "eval_pred_z2": eval_pred_z2,
                 "z_perplexity": z_perplexity,
             })
 
             if verbose:
-                print(f"Step {step:3d} | pred_loss={total_pred_loss:.3f} | z_ppl={z_perplexity:.1f} | sim={cos_sim:.3f}")
-                print(f"    after opt:     \"{decoded_after_opt}\"")
-                print(f"    after proj:    \"{decoded_after_proj}\"")
-                print(f"    after re-enc:  \"{decoded_after_enc}\"")
-                print(f"    prediction:    \"{decoded_pred}\"\n")
+                print(f"Step {step:3d} | pred_loss={total_pred_loss:.3f} | z_ppl={z_perplexity:.1f} | train_sim={train_sim:.3f} | eval_sim={eval_sim:.3f}")
+                print(f"    after opt:       \"{decoded_after_opt}\"")
+                print(f"    after proj:      \"{decoded_after_proj}\"")
+                print(f"    after re-enc:    \"{decoded_after_enc}\"")
+                print(f"    pred_z1:         \"{decoded_pred_z1}\"")
+                print(f"    pred_z1 (reenc): \"{decoded_pred_z1_reenc}\"")
+                print(f"    train pred_z2:   \"{train_pred_z2}\"")
+                print(f"    eval pred_z2:    \"{eval_pred_z2}\"\n")
 
     # Final evaluation
     if verbose:
         print("=" * 70)
         print("FINAL RESULT:")
-    final_decoded_z, decoded_pred_final, final_sim = log_z_state(
+    final_decoded_z, final_pred_z1, final_pred_z1_reenc, final_train_pred_z2, final_eval_pred_z2, final_train_sim, final_eval_sim = log_z_state(
         z, context_emb, target_emb, sonar_wrapper, generator, "Final", verbose
     )
     if verbose:
-        print(f"  target:        \"{target_text}\"")
-        print(f"  match: {decoded_pred_final.strip() == target_text.strip()}")
+        print(f"  target:           \"{target_text}\"")
+        print(f"  train match: {final_train_pred_z2.strip() == target_text.strip()}")
+        print(f"  eval match:  {final_eval_pred_z2.strip() == target_text.strip()}")
         print("=" * 70)
 
     return {
@@ -201,10 +269,15 @@ def run_next_sentence_experiment(
         "context_sents": context_sents,
         "target_text": target_text,
         "final_z": final_decoded_z,
-        "final_pred": decoded_pred_final,
+        "final_pred_z1": final_pred_z1,
+        "final_pred_z1_reenc": final_pred_z1_reenc,
+        "final_train_pred_z2": final_train_pred_z2,
+        "final_eval_pred_z2": final_eval_pred_z2,
         "final_loss": trajectory[-1]["loss"],
-        "final_similarity": final_sim,
-        "success": decoded_pred_final.strip() == target_text.strip(),
+        "final_train_similarity": final_train_sim,
+        "final_eval_similarity": final_eval_sim,
+        "train_success": final_train_pred_z2.strip() == target_text.strip(),
+        "eval_success": final_eval_pred_z2.strip() == target_text.strip(),
     }
 
 #%%
@@ -220,17 +293,16 @@ for p in generator.parameters():
 run_next_sentence_experiment(
     init_text="I like cheese.",
     # context_text="She is going to the shop to buy eggs",
-    # target_text="She went to the shop to buy eggs",
-    target_text="She asked her mom if she could have a new toy.",
+    target_text="She went to the shop to buy eggs",
+    # target_text="She asked her mom if she could have a new toy.",
     sonar_wrapper=sonar_wrapper,
     generator=generator,
-    n_steps=60,
-    lr=0.02,
+    n_steps=40,
+    lr=0.1,
     log_every=2,
     n_noise_samples=64,
-    # noise_level=0.06,
     noise_level=0.05,
-    perplexity_weight=0.01,
+    perplexity_weight=0.00,
     accum_steps=1,
     verbose=True,
 )

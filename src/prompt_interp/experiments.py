@@ -113,6 +113,7 @@ def run_next_sentence_experiment(
     perplexity_weight: float = 0.0,
     accum_steps: int = 1,
     use_llm_rephrase: bool = False,
+    llm_rephrase_every: int = 1,
 ) -> dict:
     """
     Find z such that SONAR-LLM([z, context...]) predicts target_text at the final position.
@@ -122,6 +123,7 @@ def run_next_sentence_experiment(
 
     Args:
         use_llm_rephrase: If True, use GPT-5.2 to correct decoded_z before re-encoding.
+        llm_rephrase_every: Apply LLM rephrasing every N steps (default 1 = every step).
     """
     # Initialize OpenAI client if LLM rephrasing is enabled
     openai_client: OpenAI | None = None
@@ -212,7 +214,10 @@ def run_next_sentence_experiment(
 
             # Roundtrip: decode, optionally rephrase with LLM, then encode
             decoded_z_raw: str = sonar_wrapper.decode(z.squeeze(1))[0]
-            decoded_z = rephrase_with_llm(decoded_z_raw, openai_client)
+            if use_llm_rephrase and step % llm_rephrase_every == 0:
+                decoded_z = rephrase_with_llm(decoded_z_raw, openai_client)
+            else:
+                decoded_z = decoded_z_raw
             z.data = sonar_wrapper.encode([decoded_z]).unsqueeze(1)
 
         # Log state after update
@@ -242,7 +247,8 @@ def run_next_sentence_experiment(
                 print(f"Step {step:3d} | pred_loss={total_pred_loss:.3f} | z_ppl={z_perplexity:.1f} | sim={cos_sim:.3f}")
                 print(f"    after opt:     \"{decoded_after_opt}\"")
                 print(f"    after proj:    \"{decoded_after_proj}\"")
-                if use_llm_rephrase:
+                did_rephrase = use_llm_rephrase and step % llm_rephrase_every == 0
+                if did_rephrase:
                     print(f"    before LLM:    \"{decoded_z_raw}\"")
                     print(f"    after LLM:     \"{decoded_z}\"" + (" (changed)" if llm_changed else " (unchanged)"))
                 print(f"    after re-enc:  \"{decoded_after_enc}\"")
@@ -284,8 +290,8 @@ for p in generator.parameters():
 run_next_sentence_experiment(
     init_text="I like cheese.",
     # context_text="She is going to the shop to buy eggs",
-    # target_text="She went to the shop to buy eggs.",
-    target_text="She asked her mom if she could have a new toy.",
+    target_text="She went to the shop to buy eggs.",
+    # target_text="She asked her mom if she could have a new toy.",
     sonar_wrapper=sonar_wrapper,
     generator=generator,
     n_steps=30,
@@ -298,6 +304,7 @@ run_next_sentence_experiment(
     accum_steps=1,
     verbose=True,
     use_llm_rephrase=True,
+    llm_rephrase_every=4,
 )
 
 #%%

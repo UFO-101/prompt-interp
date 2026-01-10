@@ -4,11 +4,16 @@
 import os
 import json
 from datetime import datetime
+from pathlib import Path
 import torch
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 from dotenv import load_dotenv
 from openai import OpenAI
+
+from prompt_interp import REPO_ROOT
+
+DEFAULT_OUTPUT_DIR = REPO_ROOT / "results" / "feature_vis"
 
 from prompt_interp.sonar_wrapper import SonarWrapper
 from prompt_interp.generator import SonarLLMGenerator
@@ -103,7 +108,8 @@ def get_neuron_activation(
     layer_idx: int,
     neuron_idx: int,
     capture: ActivationCapture,
-) -> torch.Tensor:
+    return_layer_mean: bool = False,
+) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
     """
     Forward z through SONAR-LLM and return the activation of a specific neuron.
 
@@ -113,9 +119,11 @@ def get_neuron_activation(
         layer_idx: Which transformer layer to hook
         neuron_idx: Which neuron in the MLP to target
         capture: ActivationCapture with hook already registered on the MLP
+        return_layer_mean: If True, also return mean activation across all neurons
 
     Returns:
         Activation value for the target neuron, shape (batch,)
+        If return_layer_mean=True, also returns mean activation across all neurons, shape (batch,)
     """
     # Project to LLaMA space and forward
     proj = generator.forward_proj(z)  # (batch, seq, hidden)
@@ -131,6 +139,10 @@ def get_neuron_activation(
     # mlp_output is the output of the full MLP, shape (batch, seq, hidden_size)
     # For intermediate activations, we'd need to hook act_fn specifically
     neuron_act = mlp_output[:, -1, neuron_idx]  # (batch,)
+
+    if return_layer_mean:
+        layer_mean = mlp_output[:, -1, :].mean(dim=-1)  # (batch,)
+        return neuron_act, layer_mean
 
     return neuron_act
 
@@ -152,21 +164,23 @@ def log_z_state(
     capture: ActivationCapture,
     label: str,
     verbose: bool,
-) -> tuple[str, float, str]:
-    """Decode z, compute neuron activation, and get prediction. Returns (decoded_z, activation, decoded_pred)."""
+) -> tuple[str, float, str, float]:
+    """Decode z, compute neuron activation, and get prediction. Returns (decoded_z, activation, decoded_pred, layer_mean_activation)."""
     with torch.no_grad():
         decoded_z: str = sonar_wrapper.decode(z.squeeze(1))[0]
-        activation: float = get_neuron_activation(z, generator, layer_idx, neuron_idx, capture).item()
+        activation, layer_mean = get_neuron_activation(z, generator, layer_idx, neuron_idx, capture, return_layer_mean=True)
+        activation = activation.item()
+        layer_mean_activation = layer_mean.item()
         # Get prediction
         pred_emb = predict_next_embedding(z, generator)[:, -1:, :]
         decoded_pred: str = sonar_wrapper.decode(pred_emb.squeeze(1))[0]
 
     if verbose:
-        print(f"{label} | activation={activation:.4f}")
+        print(f"{label} | activation={activation:.4f} | layer_mean={layer_mean_activation:.4f}")
         print(f"    z decodes to:  \"{decoded_z}\"")
         print(f"    prediction:    \"{decoded_pred}\"\n")
 
-    return decoded_z, activation, decoded_pred
+    return decoded_z, activation, decoded_pred, layer_mean_activation
 
 
 def run_feature_visualization(
@@ -184,7 +198,7 @@ def run_feature_visualization(
     accum_steps: int = 1,
     use_llm_rephrase: bool = False,
     llm_rephrase_every: int = 1,
-    output_dir: str | None = "feature_vis_results",
+    output_dir: str | Path | None = DEFAULT_OUTPUT_DIR,
 ) -> dict:
     """
     Find z that maximally activates a specific neuron in SONAR-LLM.
@@ -252,7 +266,7 @@ def run_feature_visualization(
         best_pred_after_llm = ""
 
         # Log initial state
-        decoded_z, init_activation, _ = log_z_state(
+        decoded_z, init_activation, _, init_layer_mean = log_z_state(
             z, sonar_wrapper, generator, layer_idx, neuron_idx, capture, "Init", verbose
         )
 
@@ -279,14 +293,8 @@ def run_feature_visualization(
             optimizer.step()
             should_log = step % log_every == 0 or step == n_steps - 1
             with torch.no_grad():
-                # After optimizer.step()
-                if should_log:
-                    decoded_after_opt: str = sonar_wrapper.decode(z.squeeze(1))[0]
-
                 # After projection
                 z.data = project_to_norm(z, target_norm).data
-                if should_log:
-                    decoded_after_proj: str = sonar_wrapper.decode(z.squeeze(1))[0]
 
                 # Roundtrip: decode, optionally rephrase with LLM, then encode
                 decoded_z_raw: str = sonar_wrapper.decode(z.squeeze(1))[0]
@@ -298,13 +306,14 @@ def run_feature_visualization(
 
             # Log state after update
             if should_log:
-                decoded_after_enc, current_activation, decoded_pred = log_z_state(
+                decoded_after_enc, current_activation, decoded_pred, layer_mean_activation = log_z_state(
                     z, sonar_wrapper, generator, layer_idx, neuron_idx, capture,
                     label=f"Step {step:3d}",
                     verbose=False,  # We'll print manually to include intermediate stages
                 )
                 # Track LLM rephrasing for logging
-                did_rephrase = use_llm_rephrase and step % llm_rephrase_every == 0
+                is_llm_rephrase_step = step % llm_rephrase_every == 0  # Whether LLM had a chance to rephrase
+                did_rephrase = use_llm_rephrase and is_llm_rephrase_step
                 llm_changed: bool = decoded_z_raw != decoded_z
 
                 # Update best activations
@@ -320,26 +329,26 @@ def run_feature_visualization(
                 trajectory.append({
                     "step": step,
                     "activation": current_activation,
+                    "layer_mean_activation": layer_mean_activation,
                     "decoded_z": decoded_after_enc,
                     "decoded_pred": decoded_pred,
+                    "is_llm_rephrase_step": is_llm_rephrase_step,
                     "did_llm_rephrase": did_rephrase,
                 })
 
                 if verbose:
-                    print(f"Step {step:3d} | activation={current_activation:.4f}")
-                    print(f"    after opt:     \"{decoded_after_opt}\"")
-                    print(f"    after proj:    \"{decoded_after_proj}\"")
+                    print(f"Step {step:3d} | activation={current_activation:.4f} | layer_mean={layer_mean_activation:.4f}")
                     if did_rephrase:
                         print(f"    before LLM:    \"{decoded_z_raw}\"")
                         print(f"    after LLM:     \"{decoded_z}\"" + (" (changed)" if llm_changed else " (unchanged)"))
-                    print(f"    after re-enc:  \"{decoded_after_enc}\"")
+                    print(f"    z:             \"{decoded_after_enc}\"")
                     print(f"    prediction:    \"{decoded_pred}\"\n")
 
         # Final evaluation
         if verbose:
             print("=" * 70)
             print("FINAL RESULT:")
-        final_decoded_z, final_activation, final_pred = log_z_state(
+        final_decoded_z, final_activation, final_pred, final_layer_mean = log_z_state(
             z, sonar_wrapper, generator, layer_idx, neuron_idx, capture, "Final", verbose
         )
 
@@ -368,22 +377,34 @@ def run_feature_visualization(
         # Plot activation over iterations
         steps = [t["step"] for t in trajectory]
         activations = [t["activation"] for t in trajectory]
+        layer_means = [t["layer_mean_activation"] for t in trajectory]
 
-        plt.figure(figsize=(10, 6))
-        plt.plot(steps, activations, 'b-', label='All steps', linewidth=1.5)
+        fig, ax1 = plt.subplots(figsize=(10, 6))
 
-        # Plot LLM rephrase steps as separate points/line
+        # Primary y-axis: target neuron activation
+        ax1.plot(steps, activations, 'b-', label=f'Neuron {neuron_idx}', linewidth=1.5)
         if use_llm_rephrase:
             llm_steps = [t["step"] for t in trajectory if t["did_llm_rephrase"]]
             llm_activations = [t["activation"] for t in trajectory if t["did_llm_rephrase"]]
             if llm_steps:
-                plt.plot(llm_steps, llm_activations, 'ro-', label='After LLM rephrase', markersize=8, linewidth=1.5)
+                ax1.plot(llm_steps, llm_activations, 'ro-', label='After LLM rephrase', markersize=8, linewidth=1.5)
+        ax1.set_xlabel('Step')
+        ax1.set_ylabel(f'Neuron {neuron_idx} Activation', color='b')
+        ax1.tick_params(axis='y', labelcolor='b')
 
-        plt.xlabel('Step')
-        plt.ylabel('Neuron Activation')
+        # Secondary y-axis: layer mean activation
+        ax2 = ax1.twinx()
+        ax2.plot(steps, layer_means, 'g--', label='Layer mean', linewidth=1.5, alpha=0.7)
+        ax2.set_ylabel('Layer Mean Activation', color='g')
+        ax2.tick_params(axis='y', labelcolor='g')
+
+        # Combined legend
+        lines1, labels1 = ax1.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
+
         plt.title(f'Feature Visualization: Layer {layer_idx}, Neuron {neuron_idx}')
-        plt.legend()
-        plt.grid(True, alpha=0.3)
+        ax1.grid(True, alpha=0.3)
         plt.tight_layout()
         plt.show()
 
@@ -441,29 +462,44 @@ generator = SonarLLMGenerator.from_pretrained("raxtemur/sonar-llm-900m")
 for p in generator.parameters():
     p.requires_grad = False
 
+
 #%%
-# Example: visualize what neuron 100 in layer 10 responds to
-hi = run_feature_visualization(
-    # init_text="I like cheese.",
-    # init_text="Lily went to the shop to buy eggs.",
-    init_text="What is the weather like today?",
-    # init_text="Tim and Lily went to the shop to buy eggs.",
-    # init_text="Ring the bell",
-    # init_text="I enjoy eating cheese.",
-    # init_text="The fairy lights are beautiful.",
-    # init_text="Skyscrapers are very tall buildings.",
-    # init_text="A time of unprecedented urgency, the end of the world as we know it.",
-    layer_idx=14,
-    neuron_idx=101,
-    sonar_wrapper=sonar_wrapper,
-    generator=generator,
-    n_steps=63,
-    lr=0.02,
-    log_every=2,
-    n_noise_samples=64,
-    noise_level=0.05,
-    accum_steps=1,
-    verbose=True,
-    use_llm_rephrase=True,
-    llm_rephrase_every=4
-)
+# Run feature visualization for multiple seed prompts
+seed_prompts = [
+    "I like cheese.",
+    "Lily went to the shop to buy eggs.",
+    "What is the weather like today?",
+    "Tim and Lily went to the shop to buy eggs.",
+    "Ring the bell.",
+    "I enjoy eating cheese.",
+    "The fairy lights are beautiful.",
+    "Skyscrapers are very tall buildings.",
+    "A time of unprecedented urgency, the end of the world as we know it.",
+]
+
+layer_idx = 13
+neuron_idx = 101
+
+all_results = []
+for i, prompt in enumerate(seed_prompts):
+    print(f"\n{'='*70}")
+    print(f"Running seed {i+1}/{len(seed_prompts)}: \"{prompt}\"")
+    print(f"{'='*70}\n")
+
+    result = run_feature_visualization(
+        init_text=prompt,
+        layer_idx=layer_idx,
+        neuron_idx=neuron_idx,
+        sonar_wrapper=sonar_wrapper,
+        generator=generator,
+        n_steps=63,
+        lr=0.02,
+        log_every=4,
+        n_noise_samples=64,
+        noise_level=0.05,
+        accum_steps=1,
+        verbose=True,
+        use_llm_rephrase=True,
+        llm_rephrase_every=8,
+    )
+    all_results.append(result)

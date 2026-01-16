@@ -38,3 +38,5 @@ z (optimizable, 1024-dim)
 - Change formatting or style of unchanged code
 
 The user's file organization (e.g., `#%%` cell markers, code placement) is intentional.
+
+**Do not make semantic changes to optimization/loss functions without explicit approval.** When diagnosing issues like OOM errors, explain the options but do not implement fixes (like adding `.detach()`) that change the optimization behavior without the user's go-ahead.

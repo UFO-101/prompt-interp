@@ -43,7 +43,8 @@ def load_results_for_neuron(
 def extract_top_prompts_per_seed(results: list[dict], top_k_per_seed: int = 3) -> list[dict]:
     """
     Extract top prompts from each seed separately.
-    Returns list of dicts with prompt, prediction, activation, source, grouped by seed.
+    Returns list of dicts with prompt, prediction, activation, activation_diff, source, grouped by seed.
+    Sorted by activation_diff (neuron - layer_mean).
     """
     # Group prompts by init_text (seed)
     prompts_by_seed: dict[str, list[dict]] = {}
@@ -53,48 +54,33 @@ def extract_top_prompts_per_seed(results: list[dict], top_k_per_seed: int = 3) -
         if init_text not in prompts_by_seed:
             prompts_by_seed[init_text] = []
 
-        # Add best overall
-        prompts_by_seed[init_text].append({
-            "prompt": result["best_prompt"],
-            "prediction": result["best_pred"],
-            "activation": result["best_activation"],
-            "source": "best_overall",
-            "init_text": init_text,
-        })
-
-        # Add best after LLM if available
-        if result.get("best_prompt_after_llm") and result.get("best_activation_after_llm"):
+        # Extract from trajectory - all logged steps have activation_diff
+        for step in result.get("trajectory", []):
+            activation = step["activation"]
+            layer_mean = step.get("layer_mean_activation", 0)
+            activation_diff = step.get("activation_diff", activation - layer_mean)
             prompts_by_seed[init_text].append({
-                "prompt": result["best_prompt_after_llm"],
-                "prediction": result["best_pred_after_llm"],
-                "activation": result["best_activation_after_llm"],
-                "source": "best_after_llm",
+                "prompt": step["decoded_z"],
+                "prediction": step["decoded_pred"],
+                "activation": activation,
+                "layer_mean_activation": layer_mean,
+                "activation_diff": activation_diff,
+                "source": f"step_{step['step']}",
                 "init_text": init_text,
+                "did_llm_rephrase": step.get("did_llm_rephrase", False),
             })
 
-        # Also extract from trajectory - steps where LLM had a chance to rephrase
-        for step in result.get("trajectory", []):
-            if step.get("is_llm_rephrase_step"):
-                prompts_by_seed[init_text].append({
-                    "prompt": step["decoded_z"],
-                    "prediction": step["decoded_pred"],
-                    "activation": step["activation"],
-                    "source": f"step_{step['step']}",
-                    "init_text": init_text,
-                    "did_llm_rephrase": step.get("did_llm_rephrase", False),
-                })
-
-    # For each seed: deduplicate, sort, take top_k_per_seed
+    # For each seed: deduplicate, sort by activation_diff, take top_k_per_seed
     top_prompts_by_seed: dict[str, list[dict]] = {}
     for seed, prompts in prompts_by_seed.items():
-        # Deduplicate by prompt text, keeping highest activation
+        # Deduplicate by prompt text, keeping highest activation_diff
         seen = {}
         for p in prompts:
             key = p["prompt"]
-            if key not in seen or p["activation"] > seen[key]["activation"]:
+            if key not in seen or p["activation_diff"] > seen[key]["activation_diff"]:
                 seen[key] = p
-        # Sort by activation (descending) and take top_k_per_seed
-        sorted_prompts = sorted(seen.values(), key=lambda x: x["activation"], reverse=True)
+        # Sort by activation_diff (descending) and take top_k_per_seed
+        sorted_prompts = sorted(seen.values(), key=lambda x: x["activation_diff"], reverse=True)
         top_prompts_by_seed[seed] = sorted_prompts[:top_k_per_seed]
 
     return top_prompts_by_seed
@@ -129,6 +115,7 @@ def create_heatmap_by_seed(
     neuron_idx: int,
     output_path: str | None = None,
     n_cols: int = 3,
+    row_height: float = 1.0,
 ):
     """
     Create a grid visualization of top prompts grouped by seed.
@@ -141,30 +128,29 @@ def create_heatmap_by_seed(
         print("No prompts to visualize")
         return
 
-    # Get global min/max activation for consistent coloring
-    all_activations = [
-        p["activation"]
+    # Get global min/max activation_diff for consistent coloring
+    all_diffs = [
+        p["activation_diff"]
         for prompts in top_prompts_by_seed.values()
         for p in prompts
     ]
-    min_act = min(all_activations)
-    max_act = max(all_activations)
-    act_range = max_act - min_act if max_act != min_act else 1
+    min_diff = min(all_diffs)
+    max_diff = max(all_diffs)
+    diff_range = max_diff - min_diff if max_diff != min_diff else 1
 
-    # Sort seeds by their best activation (highest first)
+    # Sort seeds by their best activation_diff (highest first)
     sorted_seeds = sorted(
         top_prompts_by_seed.keys(),
-        key=lambda s: max(p["activation"] for p in top_prompts_by_seed[s]),
+        key=lambda s: max(p["activation_diff"] for p in top_prompts_by_seed[s]),
         reverse=True,
     )
 
     # Grid layout
     n_rows_grid = (n_seeds + n_cols - 1) // n_cols
     max_prompts = max(len(p) for p in top_prompts_by_seed.values())
-    row_height = 1.0
 
     # Create figure with subplots grid
-    fig, axes = plt.subplots(n_rows_grid, n_cols, figsize=(11.5, n_rows_grid * 1.2))
+    fig, axes = plt.subplots(n_rows_grid, n_cols, figsize=(11.5, n_rows_grid * max_prompts * row_height * 0.4))
     if n_rows_grid == 1:
         axes = axes.reshape(1, -1)
     if n_cols == 1:
@@ -185,17 +171,19 @@ def create_heatmap_by_seed(
         # Draw rows
         for i, p in enumerate(prompts):
             y = (max_prompts - i - 1) * row_height
-            norm_act = (p["activation"] - min_act) / act_range
-            color = cmap(norm_act * 0.8 + 0.1)
+            norm_diff = (p["activation_diff"] - min_diff) / diff_range
+            color = cmap(norm_diff * 0.8 + 0.1)
 
-            # Activation cell
+            # Activation diff cell
             ax.add_patch(Rectangle((0, y), 0.08, row_height, facecolor=color, edgecolor="none"))
-            ax.text(0.04, y + row_height / 2, f"{p['activation']:.1f}", ha="center", va="center", fontsize=6)
+            ax.text(0.04, y + row_height / 2, f"{p['activation_diff']:.1f}", ha="center", va="center", fontsize=6)
 
-            # Text cell with wrapped text
+            # Text cell with wrapped text (truncate to 200 chars)
             ax.add_patch(Rectangle((0.08, y), 0.92, row_height, facecolor=color, alpha=0.4, edgecolor="none"))
-            prompt_wrapped = wrap_text(p['prompt'], max_chars=80)
-            pred_wrapped = wrap_text(f"-> {p['prediction']}", max_chars=80)
+            prompt_text = p['prompt'][:200] + "..." if len(p['prompt']) > 200 else p['prompt']
+            pred_text = p['prediction'][:200] + "..." if len(p['prediction']) > 200 else p['prediction']
+            prompt_wrapped = wrap_text(prompt_text, max_chars=80)
+            pred_wrapped = wrap_text(f"-> {pred_text}", max_chars=80)
             full_text = f"{prompt_wrapped}\n{pred_wrapped}"
             ax.text(0.09, y + row_height * 0.9, full_text, ha="left", va="top", fontsize=5, linespacing=0.9)
 
@@ -224,13 +212,12 @@ def create_heatmap_by_seed(
 
 #%%
 # Configuration - edit these values
-layer_idx = 13
-neuron_idx = 101
+layer_idx = 14
+neuron_idx = 105
 results_dir = DEFAULT_RESULTS_DIR
 plots_dir = DEFAULT_PLOTS_DIR
 top_k_per_seed = 3
 
-#%%
 # Load and visualize results
 results = load_results_for_neuron(results_dir, layer_idx, neuron_idx)
 print(f"Found {len(results)} result files for layer {layer_idx}, neuron {neuron_idx}")
@@ -246,7 +233,7 @@ if results:
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_path = plots_dir / f"layer{layer_idx}_neuron{neuron_idx}_{timestamp}.png"
 
-    create_heatmap_by_seed(top_prompts_by_seed, layer_idx, neuron_idx, output_path)
+    create_heatmap_by_seed(top_prompts_by_seed, layer_idx, neuron_idx, output_path, row_height=1)
 else:
     print("No results found. Run feature visualization first.")
 

@@ -278,14 +278,14 @@ def run_feature_visualization(
             for accum_idx in range(accum_steps):
                 z_batch = add_noise_with_projection(z.expand(samples_per_accum, -1, -1), noise_level)
 
-                # Get neuron activation for the batch
-                neuron_act = get_neuron_activation(z_batch, generator, layer_idx, neuron_idx, capture)
-                mean_activation = neuron_act.mean()
+                # Get neuron activation and layer mean for the batch
+                neuron_act, layer_mean = get_neuron_activation(z_batch, generator, layer_idx, neuron_idx, capture, return_layer_mean=True)
 
-                # Loss = negative activation (we want to maximize activation)
-                activation_loss = -mean_activation / accum_steps
+                # Loss = negative (neuron - layer_mean), maximize neuron relative to layer average
+                relative_activation = (neuron_act - layer_mean).mean()
+                activation_loss = -relative_activation / accum_steps
                 activation_loss.backward(retain_graph=(accum_idx < accum_steps - 1))
-                total_activation += mean_activation.item()
+                total_activation += neuron_act.mean().item()
 
             total_activation /= accum_steps  # Average activation across accum steps
 
@@ -326,10 +326,12 @@ def run_feature_visualization(
                     best_prompt_after_llm = decoded_after_enc
                     best_pred_after_llm = decoded_pred
 
+                activation_diff = current_activation - layer_mean_activation
                 trajectory.append({
                     "step": step,
                     "activation": current_activation,
                     "layer_mean_activation": layer_mean_activation,
+                    "activation_diff": activation_diff,
                     "decoded_z": decoded_after_enc,
                     "decoded_pred": decoded_pred,
                     "is_llm_rephrase_step": is_llm_rephrase_step,
@@ -337,7 +339,7 @@ def run_feature_visualization(
                 })
 
                 if verbose:
-                    print(f"Step {step:3d} | activation={current_activation:.4f} | layer_mean={layer_mean_activation:.4f}")
+                    print(f"Step {step:3d} | activation={current_activation:.4f} | layer_mean={layer_mean_activation:.4f} | diff={activation_diff:.4f}")
                     if did_rephrase:
                         print(f"    before LLM:    \"{decoded_z_raw}\"")
                         print(f"    after LLM:     \"{decoded_z}\"" + (" (changed)" if llm_changed else " (unchanged)"))
@@ -378,18 +380,20 @@ def run_feature_visualization(
         steps = [t["step"] for t in trajectory]
         activations = [t["activation"] for t in trajectory]
         layer_means = [t["layer_mean_activation"] for t in trajectory]
+        activation_diffs = [t["activation_diff"] for t in trajectory]
 
         fig, ax1 = plt.subplots(figsize=(10, 6))
 
-        # Primary y-axis: target neuron activation
+        # Primary y-axis: target neuron activation and diff
         ax1.plot(steps, activations, 'b-', label=f'Neuron {neuron_idx}', linewidth=1.5)
+        ax1.plot(steps, activation_diffs, 'm-', label='Diff (neuron - mean)', linewidth=1.5, alpha=0.8)
         if use_llm_rephrase:
             llm_steps = [t["step"] for t in trajectory if t["did_llm_rephrase"]]
             llm_activations = [t["activation"] for t in trajectory if t["did_llm_rephrase"]]
             if llm_steps:
                 ax1.plot(llm_steps, llm_activations, 'ro-', label='After LLM rephrase', markersize=8, linewidth=1.5)
         ax1.set_xlabel('Step')
-        ax1.set_ylabel(f'Neuron {neuron_idx} Activation', color='b')
+        ax1.set_ylabel('Activation', color='b')
         ax1.tick_params(axis='y', labelcolor='b')
 
         # Secondary y-axis: layer mean activation
@@ -477,29 +481,34 @@ seed_prompts = [
     "A time of unprecedented urgency, the end of the world as we know it.",
 ]
 
-layer_idx = 13
-neuron_idx = 101
+layer_idx = 10
+neuron_idxs = [101, 102, 103, 104, 105, 106, 107, 108, 109, 110]
 
 all_results = []
-for i, prompt in enumerate(seed_prompts):
-    print(f"\n{'='*70}")
-    print(f"Running seed {i+1}/{len(seed_prompts)}: \"{prompt}\"")
-    print(f"{'='*70}\n")
+for neuron_idx in neuron_idxs:
+    print(f"\n{'='*50}")
+    print(f"Running neuron {neuron_idx}/{len(neuron_idxs)}: \"{neuron_idx}\"")
+    print(f"{'='*50}\n")
+    for i, prompt in enumerate(seed_prompts):
+        print(f"\n{'='*70}")
+        print(f"Running seed {i+1}/{len(seed_prompts)}: \"{prompt}\"")
+        print(f"{'='*70}\n")
 
-    result = run_feature_visualization(
-        init_text=prompt,
-        layer_idx=layer_idx,
-        neuron_idx=neuron_idx,
-        sonar_wrapper=sonar_wrapper,
-        generator=generator,
-        n_steps=63,
-        lr=0.02,
-        log_every=4,
-        n_noise_samples=64,
-        noise_level=0.05,
-        accum_steps=1,
-        verbose=True,
-        use_llm_rephrase=True,
-        llm_rephrase_every=8,
-    )
-    all_results.append(result)
+        result = run_feature_visualization(
+            init_text=prompt,
+            layer_idx=layer_idx,
+            neuron_idx=neuron_idx,
+            sonar_wrapper=sonar_wrapper,
+            generator=generator,
+            n_steps=103,
+            lr=0.02,
+            log_every=4,
+            n_noise_samples=32,
+            noise_level=0.05,
+            accum_steps=1,
+            verbose=True,
+            use_llm_rephrase=True,
+            llm_rephrase_every=8,
+            # output_dir = None,
+        )
+        all_results.append(result)
